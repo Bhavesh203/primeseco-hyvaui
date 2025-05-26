@@ -1,0 +1,97 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\Currency;
+use Hyva\Theme\ViewModel\Locale;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var Currency $currency */
+$currency = $viewModels->require(Currency::class);
+
+if ($currency->getCurrencyCount() <= 1) {
+    return '';
+}
+
+$currencies = $currency->getCurrencies();
+$currentCurrencyCode = $currency->getCurrentCurrencyCode();
+$currentCurrencyName = $currencies[$currentCurrencyCode] ?: '';
+
+/** @var Locale $locale */
+$locale = $viewModels->require(Locale::class);
+$currentLocale = $locale->getLocale();
+?>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('initStoreCurrencies', () => ({
+            locale: '<?= /* @noEscape */ $currentLocale ?>',
+            currentCurrency: {
+                code: '<?= $escaper->escapeJs($currentCurrencyCode) ?>',
+                name: '<?= $escaper->escapeJs($currentCurrencyName) ?>',
+            },
+            currencies: <?= /* @noEscape */ json_encode($currencies) ?>,
+            currenciesWithoutCurrent: {},
+            init() {
+                this.currenciesWithoutCurrent = this.currencies;
+                delete this.currenciesWithoutCurrent[this.currentCurrency.code];
+            },
+            isPound() {
+                return this.currentCurrency.name.includes('Pound');
+            },
+            isEuro() {
+                return this.currentCurrency.name.includes('Euro');
+            },
+            isRupee() {
+                return this.currentCurrency.name.includes('Rupee');
+            },
+            isYen() {
+                return this.currentCurrency.name.includes('Yen');
+            },
+            isDefault() {
+                return !this.isPound() && !this.isEuro() && !this.isRupee() && !this.isYen();
+            },
+            getCurrencySymbol() {
+                const code = this.$el.getAttribute('data-code');
+                if (!code) return code;
+
+                try {
+                    const formatter = new Intl.NumberFormat(this.locale || undefined, { style: 'currency', currency: code });
+                    const parts = formatter.formatToParts(1);
+                    const symbolPart = parts.find(part => part.type === 'currency');
+                    return symbolPart ? symbolPart.value : code;
+                } catch (error) {
+                    console.error(`Error getting currency symbol for ${code}:`, error);
+                    return code;
+                }
+            },
+            setCurrency() {
+                const code = this.$el.getAttribute('data-code');
+                if (!code) return;
+
+                hyva.postForm({
+                    'action': '<?= $escaper->escapeUrl($block->getUrl('directory/currency/switch')) ?>',
+                    'data': {
+                        'currency': code,
+                        'uenc': hyva.getUenc()
+                    }
+                });
+            }
+        }));
+    });
+</script>
+

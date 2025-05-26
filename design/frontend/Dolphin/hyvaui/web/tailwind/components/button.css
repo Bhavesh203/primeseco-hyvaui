@@ -1,0 +1,56 @@
+@layer components {
+    .btn {
+        @apply flex rounded-lg px-4 py-2 text-base font-medium shadow-md items-center;
+
+        @screen md {
+            @apply px-6 text-lg;
+        }
+        @screen xl {
+            @apply text-base;
+        }
+
+        svg {
+            @apply inline-flex;
+        }
+
+        span {
+            vertical-align: middle;
+        }
+
+        &:hover {
+            @apply bg-theme-dark text-white;
+        }
+
+        &:focus {
+            @apply outline-none border-transparent ring-4 ring-primary ring-opacity-50;
+        }
+    }
+ 
+    .btn-primary {
+        @apply text-lg leading-5 px-6 md:px-8 py-3 md:py-3.5 bg-theme-color border border-theme-color text-white shadow-md;
+
+        &:hover {
+            @apply bg-white text-theme-color shadow-lg;
+        }
+    }
+
+    .btn-secondary {
+        @apply text-lg leading-5 px-6 md:px-8 py-3 md:py-4 bg-white border-2 border-theme-color text-theme-color shadow-md;
+
+        &:hover {
+            @apply bg-theme-color text-white shadow-lg;
+        }
+
+        &:focus {
+            @apply border-2 border-transparent shadow-none;
+        }
+    }
+
+    .btn-size-lg {
+        @apply px-10 py-4 text-lg;
+    }
+
+    .btn-size-sm {
+        @apply px-2 py-2 text-sm;
+    }
+}

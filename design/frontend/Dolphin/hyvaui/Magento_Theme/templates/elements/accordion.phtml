@@ -1,0 +1,41 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+
+$blockId = $block->getBlockId() ?: 'accordion_' . uniqid();
+
+$multiselectable = (bool) $block->getMultiselectable();
+$showDivider = $block->getDivider() !== null ? $block->getDivider() : true;
+$name = $multiselectable ? '' : ($block->getName() ?: $blockId);
+
+$classes = array_filter([
+    $block->getClasses() !== null ? $block->getClasses() : 'py-3 px-6 bg-gray-100',
+    $showDivider ? 'divide-y' : ''
+]);
+
+$childNames = $block->getChildNames();
+?>
+
+<?php if(count($childNames)): ?>
+    <div class="<?= $escaper->escapeHtmlAttr(implode(' ', $classes)) ?>">
+        <?php foreach ($childNames as $childName): ?>
+            <?= $block
+                ->getChildBlock($childName)
+                ->setTemplate('Magento_Theme::elements/accordion/collapse.phtml')
+                ->setData('name', $name)
+                ->toHtml() ?>
+        <?php endforeach; ?>
+    </div>
+<?php endif ?>

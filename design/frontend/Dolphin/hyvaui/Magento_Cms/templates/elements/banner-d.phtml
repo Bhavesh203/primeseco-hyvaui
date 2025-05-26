@@ -1,0 +1,69 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/**
+ * You can also get an image from `web/images/` in your theme:
+ * $escaper->escapeHtmlAttr($block->getViewFileUrl('images/banner.jpg'))
+ */
+$banners = [
+    [
+        'image_url' => 'https://unsplash.com/photos/v0f_sspLB-o/download?force=true&w=664&q=80',
+        'image_alt' => __('A woman stretching after a run'),
+        'label' => __('Women'),
+        'url' => $block->getUrl('home'),
+    ],
+    [
+        'image_url' => 'https://unsplash.com/photos/dCL6vpW8oJM/download?force=true&w=664&q=80',
+        'image_alt' => __('A man in a hoodie and cap walking away'),
+        'label' => __('Men'),
+        'url' => $block->getUrl('home'),
+    ],
+    [
+        'image_url' => 'https://unsplash.com/photos/SdmdP3UKE6g/download?force=true&w=664&q=80',
+        'image_alt' => __('A woman showing her sports watch'),
+        'label' => __('Gear'),
+        'url' => $block->getUrl('home'),
+    ],
+    [
+        'image_url' => 'https://unsplash.com/photos/2mGaIs51MNU/download?force=true&w=664&q=80',
+        'image_alt' => __('A woman making a knee kick in the air'),
+        'label' => __('Training'),
+        'url' => $block->getUrl('home'),
+    ],
+];
+?>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <?php foreach ($banners as $item): ?>
+        <figure class="group relative grid overflow-hidden bg-container-darker text-white isolate">
+            <img
+                src="<?= $escaper->escapeHtmlAttr($item['image_url']) ?>"
+                alt="<?= $escaper->escapeHtml($item['image_alt']) ?>"
+                width="320"
+                height="320"
+                loading="lazy"
+                class="col-start-1 row-start-1 w-full h-56 sm:h-80 xl:h-96 object-cover group-hover:opacity-70 transition-opacity duration-500"
+            >
+            <figcaption class="z-10 col-start-1 row-start-1 self-end p-7 pt-1 bg-gradient-to-t from-gray-800/75 text-lg font-bold text-center">
+                <p>
+                    <a
+                        href="<?= $escaper->escapeUrl($item['url']) ?>"
+                        class="before:absolute before:inset-0"
+                    ><?= $escaper->escapeHtml($item['label']) ?></a>
+                </p>
+            </figcaption>
+        </figure>
+    <?php endforeach; ?>
+</div>

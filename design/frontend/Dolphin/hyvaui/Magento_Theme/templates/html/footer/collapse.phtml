@@ -1,0 +1,61 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$blockId = (string) $block->getBlockId() ?: $block->getNameInLayout() ?: uniqid();
+$title = (string) $block->getTitle() ?: __("Details");
+$open = (bool) $block->getOpen() ? 'true' : 'false';
+?>
+
+<?php if ($childrenHtml = $block->getChildHtml()): ?>
+    <div
+        x-data="mobileFooterCollpase"
+        x-bind="eventListeners"
+        class="border-b border-zinc-200 lg:border-b-0 last:border-b-0"
+        data-open="<?= /** @noEscape */ $open ?>"
+    >
+        <div
+            class="group flex w-full items-center justify-between py-4 gap-2 font-bold text-theme-color lg:pt-0"
+            data-id="<?= $blockId ?>"
+            x-bind="setToggleRoles"
+            @click="toggle"
+            @keyup.enter="toggle"
+            @keyup.space="toggle"
+        >
+            <h3><?= $escaper->escapeHtml($title); ?></h3>
+            <span
+                class="transition-transform group-aria-expanded:rotate-180 lg:hidden"
+                x-ref="toggleIcon"
+            >
+                <?= $heroiconsSolid->chevronDownHtml('', 20, 20, ["aria-hidden" => 'true']); ?>
+            </span>
+        </div>
+        <div
+            id="<?= $blockId ?>"
+            class="aria-[hidden=true]:hidden"
+            x-bind="setCollapseRoles"
+        >
+            <div class="pt-0.5 pb-2.5">
+                <?= /** @noEscape */ $childrenHtml ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>

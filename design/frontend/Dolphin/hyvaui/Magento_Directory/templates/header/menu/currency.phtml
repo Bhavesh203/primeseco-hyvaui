@@ -1,0 +1,80 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Currency;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var Currency $currencyViewModel */
+$currencyViewModel = $viewModels->require(Currency::class);
+
+$itemClasses = "flex items-center gap-1 py-3 px-6 border-b border-slate-100 hover:text-slate-700";
+$itemIndent = 'ms-7';
+$iconSize = 20;
+
+if ($currencyViewModel->getCurrencyCount() <= 1) {
+    return '';
+}
+
+?>
+
+<details class="group" name="menu-settings" x-data="initStoreCurrencies">
+    <summary class="<?= $escaper->escapeHtmlAttr($itemClasses) ?> select-none cursor-pointer [&::-webkit-details-marker]:hidden">
+        <template x-if="isPound">
+            <?= $heroiconsSolid->currencyPoundHtml('', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+        </template>
+        <template x-if="isEuro">
+            <?= $heroiconsSolid->currencyEuroHtml('', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+        </template>
+        <template x-if="isRupee">
+            <?= $heroiconsSolid->currencyRupeeHtml('', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+        </template>
+        <template x-if="isYen">
+            <?= $heroiconsSolid->currencyYenHtml('', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+        </template>
+        <template x-if="isDefault">
+            <?= $heroiconsSolid->currencyDollarHtml('', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+        </template>
+        <span class="grow flex flex-wrap justify-between items-center gap-x-2">
+            <span><?= $escaper->escapeHtml(__('Currency')) ?></span>
+            <span class="ms-auto">
+                <span x-text="currentCurrency.name"></span>
+                (<span x-text="getCurrencySymbol" :data-code="currentCurrency.code"></span>)
+            </span>
+        </span>
+        <?= $heroiconsSolid->chevronDownHtml('transition group-open:rotate-180', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+    </summary>
+
+    <nav aria-label="<?= $escaper->escapeHtml(__('Currency')) ?>">
+        <template x-for="(name, code) in currenciesWithoutCurrent">
+            <button
+                class="<?= $escaper->escapeHtmlAttr($itemClasses) ?> <?= $escaper->escapeHtmlAttr($itemIndent) ?>"
+                :data-code="code"
+                @click.prevent="setCurrency"
+            >
+                <span>
+                    <span x-text="name"></span>
+                    (<span x-text="getCurrencySymbol" :data-code="code"></span>)
+                </span>
+            </button>
+        </template>
+    </nav>
+</details>

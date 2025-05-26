@@ -1,0 +1,100 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsOutline $heroIcons */
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+
+$usps = array(
+    'Shipped within a day',
+    'Free shipping and returns',
+    'Free returns',
+    'Refer a friend and get a discount',
+);
+?>
+
+<section aria-label="<?= $escaper->escapeHtml(__('Our Unique Selling Points')) ?>">
+    <ul
+        class="flex justify-center gap-5 flex-wrap"
+        x-data="footerUspCarousel"
+        @resize.window.debounce="checkIsMobileResolution"
+        @visibilitychange.window.debounce="checkIsMobileResolution"
+    >
+        <?php
+            $uspsStartIndex = 1;
+            foreach ($usps as $usp):
+        ?>
+            <li
+                class="col-start-1 row-start-1 flex justify-center items-center gap-3 transition-opacity lg:justify-start "
+                data-index="<?= /** @noEscape */ $uspsStartIndex ?>"
+                :data-active="isActive"
+                <?php if ($uspsStartIndex === 2): ?>
+                    data-active="true"
+                <?php endif; ?>
+            >
+                <?= $heroIcons->checkHtml('text-green-500', 24, 24, ['aria-hidden' => 'true']) ?>
+                <span><?= $escaper->escapeHtml(__($usp)) ?></span>
+            </li>
+        <?php
+            $uspsStartIndex++;
+            endforeach;
+        ?>
+    </ul>
+    <script>
+        function footerUspCarousel() {
+            return {
+                uspsEvent: null,
+                currentItem: 2,
+                itemCount: 0,
+                speed: 4000,
+                isMobile: false,
+                init() {
+                    this.itemCount = this.$root.children.length;
+                    this.checkIsMobileResolution();
+                },
+                checkIsMobileResolution() {
+                    this.isMobile = getComputedStyle(this.$root).display !== 'flex';
+
+                    if (!this.isMobile) {
+                        this.stop();
+                    }
+
+                    if (this.isMobile && this.uspsEvent === null) {
+                        this.start();
+                    }
+                },
+                cycle() {
+                    this.currentItem = this.currentItem >= this.itemCount ? 1 : this.currentItem + 1;
+                },
+                start() {
+                    this.uspsEvent = setInterval(() => this.cycle(), this.speed);
+                },
+                stop() {
+                    clearInterval(this.uspsEvent);
+                    this.uspsEvent = null;
+                },
+                isActive() {
+                    return this.currentItem === Number(this.$el.dataset.index);
+                },
+            }
+        }
+        window.addEventListener('alpine:init', () => Alpine.data('footerUspCarousel', footerUspCarousel), { once: true })
+    </script>    
+</section>

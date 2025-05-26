@@ -5,6 +5,8 @@
 /PATCH_*.sh
 
 /app/etc/local.xml
+/app/autoload.php
+/app/bootstrap.php
 
 /media/*
 !/media/.htaccess

@@ -1,0 +1,104 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$miniCartOptionQtyStyle = (string) $block->getMiniCartOptionQtyStyle() ?: 'default';
+$miniCartOptionQtySaveAuto = $miniCartOptionQtyStyle === "incrementor" || $miniCartOptionQtyStyle === "select";
+?>
+
+<?php if ($miniCartOptionQtyStyle !== "text"): ?>
+    <form
+        action="<?= $escaper->escapeUrl($block->getUrl('checkout/sidebar/updateItemQty')) ?>"
+        x-data="initCartDrawerQtyBox"
+        @submit.prevent="updateItemQty"
+        method="post"
+        class="form form-cart flex gap-1"
+    >
+        <?= $block->getBlockHtml('formkey') ?>
+        <input type="hidden" name="item_id" :value="item.item_id">
+        <?php if ($miniCartOptionQtyStyle === "incrementor"): ?>
+            <button
+                type="button"
+                @click="decrement"
+                @click.debounce.1000ms="updateQty"
+                class="btn p-3 border-0 rounded text-slate-900 bg-transparent hover:bg-slate-50 active:bg-slate-100 hover:shadow-none"
+            >
+                <?= $heroicons->minusHtml('', 20, 20, ['aria-hidden' => 'true']); ?>
+            </button>
+        <?php endif; ?>
+        <label class="mb-0">
+            <span class="sr-only"><?= $escaper->escapeHtml(__('Qty')) ?></span>
+            <input
+                type="number"
+                class="qty border-slate-300 shadow-none [-moz-appearance:textfield]
+                    <?= $miniCartOptionQtyStyle === "select"
+                        ? 'form-select py-2.5 pr-7 pl-3.5 focus:bg-none [&::-webkit-list-button]:w-0 [&::-webkit-calendar-picker-indicator]:!hidden'
+                        : 'form-input' ?>
+                    <?= $miniCartOptionQtyStyle === "incrementor" ? 'w-16 text-center' : 'w-20' ?>
+                    <?= $miniCartOptionQtyStyle === "select" || $miniCartOptionQtyStyle === "incrementor"
+                        ? '[&::-webkit-inner-spin-button]:hidden'
+                        : 'hover:[-moz-appearance:auto] [&::-webkit-inner-spin-button]:invisible [&::-webkit-inner-spin-button]:hover:visible' ?>"
+                required
+                min="0"
+                step="any"
+                :value="itemQty"
+                name="item_qty"
+                @change="updateQtyValue"
+                <?php if ($miniCartOptionQtyStyle === "select"): ?>
+                    :placeholder="initQty"
+                <?php endif; ?>
+                <?php if ($miniCartOptionQtySaveAuto): ?>
+                    @change.debounce.1000ms="updateQty"
+                <?php endif; ?>
+                <?php if ($miniCartOptionQtyStyle === "select"): ?>
+                    list="minicart-autocomplete"
+                    @focus="updateQtyOnFocus"
+                    @blur="updateQtyOnBlur"
+                <?php endif; ?>
+            >
+        </label>
+        <?php if ($miniCartOptionQtyStyle === "incrementor"): ?>
+            <button
+                type="button"
+                @click="increment"
+                @click.debounce.1000ms="updateQty"
+                class="btn p-3 border-0 rounded text-slate-900 bg-transparent hover:bg-slate-50 active:bg-slate-100 hover:shadow-none"
+            >
+                <?= $heroicons->plusHtml('', 20, 20, ['aria-hidden' => 'true']); ?>
+            </button>
+        <?php endif; ?>
+        <?php if (!$miniCartOptionQtySaveAuto): ?>
+            <button
+                type="submit"
+                class="btn btn-primary w-11 p-2 disabled:invisible"
+                :disabled="qtyHasNewValue"
+                data-aria-label="<?= $escaper->escapeJs(__('Update qty for "%1"')) ?>"
+                :aria-label="item.product_name"
+            >
+                <?= $heroiconsSolid->checkHtml('', 20, 20, ['aria-hidden' => 'true']); ?>
+            </button>
+        <?php endif; ?>
+    </form>
+<?php endif; ?>

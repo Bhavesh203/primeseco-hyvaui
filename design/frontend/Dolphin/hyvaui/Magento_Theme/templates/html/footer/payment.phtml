@@ -1,0 +1,39 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\PaymentIcons\ViewModel\PaymentIconsLight;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var PaymentIconsLight $paymentIcons */
+$paymentIcons = $viewModels->require(PaymentIconsLight::class);
+
+$paymentIconsWidth = 48;
+$paymentIconsHeight = 32;
+?>
+
+<div
+    class="container flex gap-4 flex-wrap justify-center"
+    aria-label="<?= $escaper->escapeHtml(__('Payment Providers')) ?>"
+>
+    <?= $paymentIcons->idealHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->visaHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->mastercardHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->paypalHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->klarnaHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->applePayHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->googlePayHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+    <?= $paymentIcons->bitcoinHtml('', $paymentIconsWidth, $paymentIconsHeight) ?>
+</div>

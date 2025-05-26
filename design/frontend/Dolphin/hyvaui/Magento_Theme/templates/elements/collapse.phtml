@@ -1,0 +1,65 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$icon = (string) $block->getIcon() ?: '';
+$title = (string) $block->getTitle() ?: __("Details");
+$content = (string) $block->getContent() ?: "";
+?>
+
+<details
+    class="group collapse"
+    <?= /** @noEscape */ $block->getOpen() ? 'open' : '' ?>
+    <?php if ($name = $block->getName()): ?>
+        name="<?= $escaper->escapeHtmlAttr($name) ?>"
+    <?php endif; ?>
+>
+    <summary class="py-3">
+        <?php if ($icon): ?>
+            <span class="flex items-center gap-2">
+                <?= $hyvaicons->renderHtml($icon, 'text-blue-900', 18, 18, ['aria-hidden' => 'true']); ?>
+                <?= $escaper->escapeHtml($title); ?>
+            </span>
+        <?php else: ?>
+            <?= $escaper->escapeHtml($title); ?>
+        <?php endif; ?>
+        <?= $heroiconsSolid->chevronDownHtml(
+            '',
+            20,
+            20,
+            [
+                'aria-hidden' => 'true',
+                'class' => 'transition-transform group-open:rotate-180'
+            ]
+        ); ?>
+    </summary>
+    <div class="flow-root pb-3">
+        <?php if ($block->getChildHtml()): ?>
+            <?= $block->getChildHtml(); ?>
+        <?php else: ?>
+            <?= $escaper->escapeHtml($content); ?>
+        <?php endif; ?>
+    </div>
+</details>

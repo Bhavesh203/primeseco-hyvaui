@@ -1,0 +1,58 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Search\Helper\Data as SearchHelper;
+use Magento\Search\ViewModel\ConfigProvider as SearchConfig;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var SearchHelper $helper */
+$helper = $this->helper(SearchHelper::class);
+
+/** @var SearchConfig $searchConfig */
+$searchConfig = $viewModels->require(SearchConfig::class);
+?>
+
+<search role="search">
+    <form
+        class="flex form-input p-0 overflow-hidden focus-within:border-primary focus-within:ring ring-primary/50"
+        method="get"
+        action="<?= $escaper->escapeUrl($helper->getResultUrl()) ?>"
+    >
+        <label class="grow flex flex-col m-0">
+            <span class="sr-only"><?= $escaper->escapeHtml(__('Search')) ?></span>
+            <input
+                type="search"
+                name="<?= $escaper->escapeHtmlAttr($helper->getQueryParamName()) ?>"
+                placeholder="<?= $escaper->escapeHtmlAttr(__('Search entire store here...')) ?>"
+                required
+                minlength="3"
+                maxlength="<?= $escaper->escapeHtmlAttr($helper->getMaxQueryLength()) ?>"
+                autocomplete="off"
+                class="block w-full grow border-0 focus:outline-none focus:ring-0"
+            >
+        </label>
+        <button class="p-2.5 text-slate-800 hover:bg-slate-100 focus:bg-slate-100" aria-label="<?= $escaper->escapeHtml(__('Search')) ?>">
+            <?= $heroiconsSolid->searchHtml('', 24, 24, ['aria-hidden' => 'true']); ?>
+        </button>
+    </form>
+</search>

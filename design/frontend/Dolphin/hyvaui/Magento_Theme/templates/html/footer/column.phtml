@@ -1,0 +1,28 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+?>
+<?php if ($childrenHtml = $block->getChildHtml()): ?>
+    <div class="pt-4 lg:pt-0">
+        <?php if ($title = $block->getTitle()): ?>
+            <div class="pb-4 font-bold text-slate-700">
+                <h3><?= $escaper->escapeHtml($title); ?></h3>
+            </div>
+        <?php endif; ?>
+        <div class="pt-0.5 pb-2.5">
+            <?= /** @noEscape */ $childrenHtml ?>
+        </div>
+    </div>
+<?php endif; ?>

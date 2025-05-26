@@ -1,0 +1,43 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$label = __('My Wish List');
+?>
+
+<a
+    href="<?= $escaper->escapeUrl($block->getUrl('wishlist')) ?>"
+    class="relative hidden md:inline-block rounded p-1 hover:bg-primary/10 outline-offset-2"
+    x-data="initWishlistHeader"
+    @private-content-loaded.window="receiveWishlistData"
+    aria-label="<?= $escaper->escapeHtmlAttr($label); ?>"
+    :aria-label="linkAriaLabel"
+>
+    <?= $heroicons->heartHtml('', 24, 24, ["aria-hidden" => "true"]) ?>
+    <template x-if="itemCount">
+        <span
+            x-text="itemCount"
+            class="absolute -top-1.5 -right-1.5 px-2 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs
+                font-semibold leading-none text-center uppercase tabular-nums"
+            aria-hidden="true"
+        ></span>
+    </template>
+</a>

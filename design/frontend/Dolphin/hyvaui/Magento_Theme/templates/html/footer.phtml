@@ -1,0 +1,109 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var HyvaCsp $hyvaCsp */
+
+// Remove any child blocks that don't need to be part of the footer columns
+$footerColumns = array_diff(
+    $block->getChildNames(),
+    array('footer-copyright', 'form.subscribe', 'footer-content-before', 'footer-content-after')
+);
+?>
+
+<?= $block->getChildHtml('footer-content-before') ?>
+<?= $block->getChildHtml('subscribe') ?>
+<div class="bg-theme-bg-light border-t border-zinc-200">
+    <div class="container py-8 mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-4 lg:gap-6 text-black">
+            <?php foreach ($footerColumns as $childName): ?>
+                <?= $block->getBlockHtml($childName) ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php if ($footerContentAfter = $block->getChildHtml('footer-content-after')): ?>
+        <div class="space-y-10 bg-zinc-50 py-4">
+            <?= /** @noEscape */ $footerContentAfter ?>
+        </div>
+    <?php endif; ?>
+    <div class="bg-theme-dark">
+        <div class="container text-white  pt-7 pb-5 border-t border-zinc-200 flex justify-between items-center flex-col sm:flex-row text-sm">
+            <?= $block->getChildHtml('copyright') ?>
+            <nav class="!text-white" aria-label="<?= $escaper->escapeHtml(__('Legal Menu')) ?>">
+                <a
+                    href="<?= $escaper->escapeUrl($block->getUrl('privacy-policy-cookie-restriction-mode')) ?>"
+                    class="inline-block py-1 px-2 sm:px-0 sm:mr-4 sm:last:mr-0 hover:underline"
+                ><?= $escaper->escapeHtml(__('Terms & Conditions')) ?></a>
+                <a
+                    href="<?= $escaper->escapeUrl($block->getUrl('privacy-policy-cookie-restriction-mode')) ?>"
+                    class="inline-block py-1 px-2 sm:px-0 sm:mr-4 sm:last:mr-0 hover:underline"
+                ><?= $escaper->escapeHtml(__('Privacy Policy')) ?></a>
+            </nav>
+        </div>
+    </div>
+</div>
+<script>
+    function mobileFooterCollpase() {
+        return {
+            open: false,
+            isMobile: false,
+            init() {
+                this.open = this.$root.dataset.open;
+                this.checkIsMobileResolution();
+            },
+            checkIsMobileResolution() {
+                this.isMobile = getComputedStyle(this.$refs.toggleIcon).display !== 'none'
+            },
+            isOpen() {
+                return this.isMobile ? this.open : true;
+            },
+            toggle() {
+                return this.isMobile ? this.open = !this.open : true;
+            },
+            eventListeners: {
+                ['@resize.window.debounce']() {
+                    this.checkIsMobileResolution();
+                },
+                ['@visibilitychange.window.debounce']() {
+                    this.checkIsMobileResolution();
+                }
+            },
+            setToggleRoles: {
+                [':role']() {
+                    return this.isMobile && 'button';
+                },
+                [':tabindex']() {
+                    return this.isMobile && '0';
+                },
+                [':aria-expanded']() {
+                    return this.isMobile ? this.open : null;
+                },
+                [':aria-controls']() {
+                    return this.isMobile ? this.$el.dataset.id : null;
+                }
+            },
+            setCollapseRoles: {
+                [':aria-hidden']() {
+                    return this.isMobile ? !!this.open : null;
+                },
+                [':aria-labelledby']() {
+                    return this.isMobile ? this.$el.id : null;
+                }
+            }
+        }
+    }
+    window.addEventListener('alpine:init', () => Alpine.data('mobileFooterCollpase', mobileFooterCollpase), { once: true })
+</script>
+

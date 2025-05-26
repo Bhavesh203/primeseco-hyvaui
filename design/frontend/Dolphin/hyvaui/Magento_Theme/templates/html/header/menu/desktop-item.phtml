@@ -1,0 +1,83 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var string[] $menu */
+$item = $block->getData('item');
+$level = $block->getData('level');
+$menuId = str_replace('-', '_',$item['id']);
+?>
+
+<?php if (!empty($item['childData'])): ?>
+    <li
+        class="level-<?= $level ?>"
+        data-id="<?= /* @noEscape */$menuId ?>"
+        x-data="initSubMenuDesktopItem"
+        @click.outside="close"
+    >
+        <button
+            type="button"
+            class="group w-full flex justify-between items-center gap-1 p-2 rounded-md hover:bg-theme-light
+                aria-expanded:text-theme-color aria-expanded:bg-theme-light data-[has-current]:font-medium"
+            x-ref="childmenuToggle"
+            @click="toggle"
+            aria-expanded="false"
+            :aria-expanded="open"
+            aria-controls="<?= $escaper->escapeHtml($item['id']) ?>-desktop-menu-panel"
+        >
+            <?= $escaper->escapeHtml($item['name']) ?>
+            <?= $heroiconsSolid->chevronRightHtml(
+                'text-slate-400 group-aria-expanded:text-inherit',
+                24,
+                24,
+                ['aria-hidden' => 'true'])
+            ?>
+        </button>
+        <ul
+            id="<?= $escaper->escapeHtml($item['id']) ?>-desktop-menu-panel"
+            class="absolute inset-0 border-l border-slate-100 bg-white flex flex-col gap-1 py-2.5 px-2 w-72 translate-x-72"
+            x-show="open"
+            x-ref="childmenuWrapper"
+            @keydown.escape.stop="close"
+        >
+            <li>
+                <a
+                    href="<?= $escaper->escapeUrl($item['url']) ?>"
+                    class="flex p-2 rounded-md hover:bg-slate-50 aria-[current=page]:font-medium"
+                    x-ref="childmenuViewAll"
+                ><?= $escaper->escapeHtml(__('See all %1', $item['name'])) ?></a>
+            </li>
+            <?php foreach ($item['childData'] as $subMenu): ?>
+                <?= $block->getLayout()->getBlock('topmenu_desktop_item')
+                    ->setItem($subMenu)
+                    ->setLevel($level + 1)
+                    ->toHtml() ?>
+            <?php endforeach; ?>
+        </ul>
+    </li>
+<?php else: ?>
+    <li class="level-<?= $level ?>">
+        <a
+            href="<?= $escaper->escapeUrl($item['url']) ?>"
+            class="level-<?= $level ?> flex p-2 rounded-md hover:bg-slate-50 aria-[current=page]:font-medium"
+        ><?= $escaper->escapeHtml($item['name']) ?></a>
+    </li>
+<?php endif; ?>

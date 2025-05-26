@@ -1,0 +1,240 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Hyva\Theme\ViewModel\Navigation;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Catalog\ViewModel\Product\Breadcrumbs;
+use Magento\CatalogUrlRewrite\Model\ProductUrlPathGenerator;
+use Magento\Framework\Escaper;
+use Magento\Theme\Block\Html\Breadcrumbs as BreadcrumbsBlock;
+
+/** @var Escaper $escaper */
+/** @var BreadcrumbsBlock $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsSolid $heroIconsSolid */
+$heroIconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var StoreConfig $storeConfigViewModel */
+$storeConfigViewModel = $viewModels->require(StoreConfig::class);
+
+/** @var Breadcrumbs $breadcrumbsViewModel */
+$breadcrumbsViewModel = $viewModels->require(Breadcrumbs::class);
+
+/** @var Navigation $navigationViewModel */
+$navigationViewModel = $viewModels->require(Navigation::class);
+
+/** @var CurrentProduct $currentProductViewModel */
+$currentProductViewModel = $viewModels->require(CurrentProduct::class);
+
+$productUrlSuffix = $storeConfigViewModel->getStoreConfig(ProductUrlPathGenerator::XML_PATH_PRODUCT_URL_SUFFIX);
+$categoryUrlSuffix = $breadcrumbsViewModel->getCategoryUrlSuffix();
+
+// Modules may disable the rendering of application/ld+json BreadcrumbList by setting this flag in layout XML
+$skipLinkedDataJsonSchema = $block->getData('skip_ld_json_schema');
+
+$product = $currentProductViewModel->exists() ? $currentProductViewModel->get() : null;
+
+$showBackBtn = $block->getShowBackBtn() !== null ? (bool) $block->getShowBackBtn() : true;
+$overflowStyleSticky = $block->getOverflowStyle() === "sticky";
+
+?>
+<nav class="breadcrumbs" aria-label="Breadcrumb" x-data="initBreadcrumbs">
+    <?php if ($showBackBtn): ?>
+        <div class="container py-3.5 sm:hidden">
+            <span aria-hidden="true">&ZeroWidthSpace;</span>
+            <template x-if="previousPage.link">
+                <a
+                    class="group max-w-full inline-flex align-middle items-center gap-1 font-medium hover:text-blue-700 whitespace-nowrap"
+                    :href="previousPage.link"
+                    :aria-label="previousPageAriaLabel"
+                >
+                    <?= $heroIconsSolid->chevronLeftHtml(
+                        'text-slate-400 group-hover:text-inherit group-hover:-translate-x-0.5 transition rtl:rotate-180',
+                        16,
+                        16,
+                        ['aria-hidden' => 'true']
+                    ); ?>
+                    <span class="text-ellipsis overflow-hidden" x-text="previousPage.label"></span>
+                </a>
+            </template>
+        </div>
+    <?php endif; ?>
+
+    <ol class="container py-4 overflow-x-auto overscroll-x-contain snap mask-overflow text-sm text-slate-700 <?= $showBackBtn ? 'hidden sm:flex' : 'flex' ?>">
+        <li aria-hidden="true">&ZeroWidthSpace;</li>
+        <template x-for="item in breadcrumbs">
+            <li
+                class="flex items-center whitespace-nowrap"
+                <?php if ($overflowStyleSticky): ?>
+                    :data-type="item.name"
+                    :class="setIsStickyClasses"
+                <?php endif; ?>
+            >
+                <template x-if="isItemNotHome">
+                    <?= $heroIconsSolid->chevronRightHtml(
+                        'separator shrink-0 mx-1 text-slate-400 rtl:rotate-180',
+                        12,
+                        12,
+                        ['aria-hidden' => 'true']
+                    ); ?>
+                </template>
+                <?php if ($overflowStyleSticky): ?>
+                    <template x-if="isItemNotHome">
+                        <span
+                            aria-hidden="true"
+                            class="separator block ml-2.5 pl-2.5 border-l border-slate-400 h-full"
+                            x-show="isSticky"
+                        ></span>
+                    </template>
+                <?php endif; ?>
+                <template x-if="isItemNotHome">
+                    <a
+                        class="flex items-center gap-1 w-full text-ellipsis overflow-hidden text-slate-500 hover:text-blue-700 hover:underline"
+                        :href="item.link"
+                        aria-current="page"
+                    >
+                        <span class="text-ellipsis overflow-hidden" x-text="item.label"></span>
+                    </a>
+                </template>
+                <template x-if="isItemNotProduct">
+                    <a
+                        class="flex items-center gap-1 w-full text-ellipsis overflow-hidden hover:text-blue-700 hover:underline"
+                        :href="item.link"
+                        :aria-label="item.title"
+                    >
+                        <span class="text-ellipsis overflow-hidden" x-text="item.label"></span>
+                    </a>
+                </template>
+            </li>
+        </template>
+    </ol>
+</nav>
+
+<script>
+    function getBreadcrumbs() {
+        const categories = <?= /** @noEscape */ json_encode($navigationViewModel->getCategories()) ?>;
+        const breadcrumbs = [{
+            name: 'home',
+            label: '<?= $escaper->escapeJs(__('Home')) ?>',
+            title: '<?= $escaper->escapeJs(__('Go to Home Page')) ?>',
+            link: BASE_URL || '/',
+        }];
+        const categoryUrl = (() => {
+            <?php if ($breadcrumbsViewModel->isCategoryUsedInProductUrl()): ?>
+                const productUrl = window.location.href.split('?')[0];
+                return productUrl.substring(0, productUrl.lastIndexOf('/')) + '<?= $escaper->escapeJs($categoryUrlSuffix) ?>';
+            <?php else: ?>
+                return document.referrer.split('?')[0]
+            <?php endif; ?>
+        })();
+        const category = Object.values(categories).find(cat => cat.url === categoryUrl);
+
+        if (category) {
+            let parts = category.path.split('/');
+            parts.splice(0, 2);
+
+            for (let i in parts) {
+                breadcrumbs.push({
+                    name: 'category',
+                    label: categories['c' + parts[i]]['name'],
+                    title: null,
+                    link: categories['c' + parts[i]]['url'],
+                });
+            }
+        }
+
+        <?php if ($product): ?>
+            breadcrumbs.push({
+                name: 'product',
+                label: '<?= $escaper->escapeJs($product->getName()) ?>',
+                title: null,
+                link: BASE_URL + '<?= $escaper->escapeJs($product->getUrlKey()) ?>' + '<?= $escaper->escapeJs($productUrlSuffix) ?>',
+            });
+        <?php endif; ?>
+
+        return breadcrumbs;
+    }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('initBreadcrumbs', () => ({
+            breadcrumbs: [],
+            previousPage: {},
+            isSticky: false,
+            init() {
+                this.breadcrumbs = getBreadcrumbs();
+                this.previousPage = this.breadcrumbs[this.breadcrumbs.length - 2];
+
+                <?php if (! $skipLinkedDataJsonSchema): ?>
+                    this.createJsonLd(this.breadcrumbs);
+                <?php endif; ?>
+
+                <?php if ($overflowStyleSticky): ?>
+                    this.$nextTick(() => this.checkIfIsSticky())
+                <?php endif; ?>
+            },
+            createJsonLd(breadcrumbs) {
+                const script = document.createElement('script');
+                script.type = 'application/ld+json';
+
+                const itemListElement = breadcrumbs.map((crumb, i) => ({
+                    "@type": "ListItem",
+                    "position": i + 1,
+                    "item": { "@id": crumb.link, "name": crumb.label }
+                }));
+
+                script.appendChild(document.createTextNode(JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": itemListElement
+                })));
+
+                document.head.appendChild(script);
+            },
+            setIsStickyClasses() {
+                if (this.$el.getAttribute('data-type') !== 'product') return;
+
+                const baseClasses = 'sticky bg-container right-[calc((theme(container.padding)*-1)-1px)]'
+                    + ' after:absolute after:inset-y-0 after:left-full after:w-[theme(container.padding)] after:bg-container';
+                const isStickyClasses = '[&>svg]:hidden pr-[theme(container.padding)] before:absolute before:inset-y-0 before:right-full before:w-8'
+                    + ' before:bg-gradient-to-l before:from-[theme(backgroundColor.container.DEFAULT)]';
+
+                return this.isSticky ? baseClasses + ' ' + isStickyClasses : baseClasses;
+            },
+            checkIfIsSticky() {
+                const el = document.querySelector('[data-type="product"]');
+                if (!el) return;
+
+                new IntersectionObserver(([e]) => {
+                    const rect = e.target.getBoundingClientRect();
+                    this.isSticky = e.intersectionRatio < 1;
+                }, { threshold: [0, 1] }).observe(el);
+            },
+            isItemProduct() {
+                return this.item.name === 'product'
+            },
+            isItemNotProduct() {
+                return this.item.name !== 'product'
+            },
+            isItemNotHome() {
+                return this.item.name !== 'home'
+            },
+            previousPageAriaLabel() {
+                return hyva.str("<?= $escaper->escapeHtmlAttr(__('Back to %1')) ?>", this.previousPage.label)
+            },
+        }));
+    });
+</script>
+

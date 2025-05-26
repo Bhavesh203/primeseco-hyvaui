@@ -1,0 +1,22 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Customer\Block\Account\Customer;
+use Magento\Framework\Escaper;
+
+/** @var Customer $block */
+/** @var Escaper $escaper */
+?>
+
+<?php if ($block->customerLoggedIn()): ?>
+    <?= $block->getChildHtml('footer.customer.logged.in.links') ?>
+<?php else: ?>
+    <?= $block->getChildHtml('footer.customer.logged.out.links') ?>
+<?php endif; ?>

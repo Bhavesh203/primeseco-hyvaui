@@ -1,0 +1,57 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Catalog\Helper\Output as CatalogOutputHelper;
+use Magento\Catalog\Block\Product\View\Attributes;
+use Magento\Catalog\Model\Product;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+/** @var Escaper $escaper */
+/** @var CatalogOutputHelper $output */
+/** @var Attributes $block */
+
+/** @var CatalogOutputHelper $catalogOutputHelper */
+$catalogOutputHelper = $this->helper(CatalogOutputHelper::class);
+
+/** @var Product $product */
+$product = $block->getProduct();
+
+$getLayoutStyle = (string) $block->getLayoutStyle() ?: "";
+
+$layoutStyleTableRow = $getLayoutStyle === "" ? "block lg:table-row" : ($getLayoutStyle === "list" ? "block" : "");
+$layoutStyleTableCellHeading = $getLayoutStyle === ""
+    ? "block lg:table-cell pt-3 lg:py-2 px-3"
+    : ($getLayoutStyle === "list" ? "block pt-3 px-3" : "py-2 px-3");
+$layoutStyleTableCellItem = $getLayoutStyle === ""
+    ? "block lg:table-cell pb-3 lg:py-2 px-3"
+    : ($getLayoutStyle === "list" ? "block pb-3 px-3" : "py-2 px-3");
+?>
+
+<?php if ($attributes = $block->getAdditionalData()): ?>
+    <div class="table-wrapper overflow-x-auto" id="product-attributes">
+        <table class="additional-attributes table-fixed w-full">
+            <?php foreach ($attributes as $attribute): ?>
+                <tr class="border-b border-slate-200 last:border-b-0 bg-slate-50 odd:bg-slate-100 <?= $layoutStyleTableRow ?>">
+                    <th
+                        class="col label product-attribute-label text-start text-slate-500 font-semibold break-words hyphens-auto <?= $layoutStyleTableCellHeading ?>"
+                        scope="row"
+                    ><?= $escaper->escapeHtml($attribute['label']) ?></th>
+                    <td
+                        class="col data product-attribute-value text-start text-slate-700 break-words hyphens-auto <?= $layoutStyleTableCellItem ?>"
+                        data-th="<?= $escaper->escapeHtmlAttr($attribute['label']) ?>"
+                    ><?= /* @noEscape */ $catalogOutputHelper->productAttribute($product, $attribute['value'], $attribute['code']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
+<?php endif;?>

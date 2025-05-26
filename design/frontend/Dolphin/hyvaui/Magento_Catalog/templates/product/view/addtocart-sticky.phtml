@@ -1,0 +1,120 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\ProductPage;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var Product $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+/** @var Product $product */
+$product = $productViewModel->getProduct();
+$productImg = $productViewModel->getImage($product, 'product_page_image_small');
+$productType = $product->getTypeId();
+$isMobileOnly = $block->getMobileOnly() !== null
+    ? (bool) $block->getMobileOnly()
+    : true;
+$showAfterAddToCart = $block->getOnlyShowAfterAddToCart() !== null
+    ? (bool) $block->getOnlyShowAfterAddToCart()
+    : true;
+$truncateTitle = $block->getTruncateTitle() !== null
+    ? (bool) $block->getTruncateTitle()
+    : true;
+
+$classes = 'z-20 sticky -bottom-px inset-x-0 border-y bg-white text-slate-700';
+if ($isMobileOnly) {
+    $classes .= '';
+}
+if ($showAfterAddToCart) {
+    $classes .= ' opacity-0 data-[sticky=false]:opacity-100 data-[sticky=false]:translate-y-0 transition ease-out duration-300';
+}
+?>
+
+<section
+    id="stickyAddToCart"
+    class="<?= $classes ?> data-[sticky=true]:shadow-2xl data-[sticky=true]:border-transparent"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Add %1 to Cart', $product->getName())) ?>"
+>
+    <div class="container py-6 grid grid-cols-[auto_minmax(0px,1fr)_auto] gap-2 items-center">
+        <img
+            src="<?= $escaper->escapeUrl($productImg->getImageUrl()) ?>"
+            alt="<?= $escaper->escapeHtmlAttr($productImg->getLabel()) ?>"
+            width="<?= $escaper->escapeHtmlAttr(round($productImg->getWidth() / 1.5)) ?>"
+            height="<?= $escaper->escapeHtmlAttr(round($productImg->getHeight() / 1.5)) ?>"
+            loading="lazy"
+        />
+        <div class="text-slate-800 text-lg overflow-hidden">
+            <p class="md:text-xl xl:text-2xl title-font leading-tight <?= $truncateTitle ? 'truncate' : '' ?>">
+                <strong class="font-semibold"><?= $escaper->escapeHtml($product->getName()) ?></strong>
+            </p>
+            <?php if ($productType !== 'grouped' && $productType !== 'bundle'): ?>
+                <div class="relative text-slate-600 [&_.price-label]:sr-only [&_.price-wrapper]:[font-size:inherit] [&_.price-wrapper]:text-inherit">
+                    <?= $block->getChildHtml('price') ?>
+                </div>
+            <?php endif ?>
+        </div>
+        <?php if ($product->isSaleable()): ?>
+            <button
+                type="submit"
+                form="product_addtocart_form"
+                class="btn btn-primary"
+                data-addto="cart"
+            >
+                <?= $heroicons->shoppingCartHtml('', 24, 24, ['aria-hidden' => 'true']); ?>
+                <span class="sr-only sm:not-sr-only">
+                    <?= $block->getData('is_cart_configure')
+                        ? $escaper->escapeHtml(__('Update item'))
+                        : $escaper->escapeHtml(__('Add to Cart')) ?>
+                </span>
+            </button>
+        <?php endif ?>
+    </div>
+    <script>
+        (() => {
+            const form = document.getElementById('product_addtocart_form');
+            if (form) {
+                form.classList.add('[&_:is(input,select,textarea)]:scroll-my-36');
+            }
+
+            const stickyAddToCart = document.getElementById('stickyAddToCart');
+            stickyAddToCart.dataset.sticky = 'initial';
+            new IntersectionObserver(([e]) =>
+                e.target.dataset.sticky = e.intersectionRatio < 1,
+                { threshold: 1 }
+            ).observe(stickyAddToCart);
+
+            <?php if ($showAfterAddToCart): ?>
+                const addToCartBtn = document.getElementById('product-addtocart-button');
+                if (!addToCartBtn) return;
+                new IntersectionObserver(([e]) => {
+                    const rect = e.target.getBoundingClientRect();
+                    const hideStickyAtc = Math.round(rect.top + rect.height) > (rect.height);
+                    stickyAddToCart.classList.toggle('translate-y-full', hideStickyAtc);
+                    stickyAddToCart.classList.toggle('opacity-0', hideStickyAtc);
+                }, { threshold: [0, 1] }).observe(addToCartBtn);
+            <?php endif ?>
+        })();
+    </script>
+    <?php 
+    // $hyvaCsp->registerInlineScript() 
+    ?>
+</section>

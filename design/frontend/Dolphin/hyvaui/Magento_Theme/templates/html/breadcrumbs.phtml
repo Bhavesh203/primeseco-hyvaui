@@ -1,0 +1,158 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Theme\Block\Html\Breadcrumbs;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var Breadcrumbs $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+/** @var array[] $crumbs */
+
+/** @var HeroiconsSolid $heroIconsSolid */
+$heroIconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+if (!$crumbs && !is_array($crumbs)) {
+    return '';
+}
+
+$crumbsCount = 1;
+$crumbsTotalItem = count($crumbs);
+
+$currentPageUrl = $block->getUrl('', ['_current' => true, '_use_rewrite' => true]);
+
+// Modules may disable the rendering of application/ld+json BreadcrumbList by setting this flag in layout XML
+$skipLinkedDataJsonSchema = $block->getData('skip_ld_json_schema');
+$schemaBreadcrumbs = [];
+
+$showBackBtn = $block->getShowBackBtn() !== null ? (bool) $block->getShowBackBtn() : true;
+$overflowStyleSticky = $block->getOverflowStyle() === "sticky";
+
+?>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb" <?php if ($overflowStyleSticky): ?>x-data="initBreadcrumbs"<?php endif; ?>>
+    <?php if ($showBackBtn): ?>
+        <?php $crumbSecondLastItem = array_values($crumbs)[$crumbsTotalItem - 2]; ?>
+        <div class="container py-3.5 sm:hidden">
+            <a
+                href="<?= $escaper->escapeUrl($crumbSecondLastItem['link']) ?>"
+                class="group max-w-full inline-flex align-middle items-center gap-1 font-medium hover:text-blue-700 whitespace-nowrap"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Back to %1', $crumbSecondLastItem['label'])) ?>"
+            >
+                <?= $heroIconsSolid->chevronLeftHtml(
+                    'text-slate-400 group-hover:text-inherit group-hover:-translate-x-0.5 transition rtl:rotate-180',
+                    16,
+                    16,
+                    ['aria-hidden' => 'true']
+                ); ?>
+                <span class="text-ellipsis overflow-hidden"><?= $escaper->escapeHtml($crumbSecondLastItem['label']) ?></span>
+            </a>
+        </div>
+    <?php endif; ?>
+
+    <ol class="container py-4 overflow-x-auto overscroll-x-contain snap mask-overflow text-sm text-slate-700 <?= $showBackBtn ? 'hidden sm:flex' : 'flex' ?>">
+        <?php foreach ($crumbs as $crumbName => $crumbInfo): ?>
+            <li
+                class="flex items-center whitespace-nowrap"
+                <?php if ($overflowStyleSticky && $crumbInfo['last']): ?>
+                    x-ref="lastItem"
+                    :class="setIsStickyClasses"
+                <?php endif; ?>
+            >
+                <?php if (!$crumbInfo['first']): ?>
+                    <?= $heroIconsSolid->chevronRightHtml(
+                        'separator shrink-0 mx-1 text-slate-400 rtl:rotate-180',
+                        12,
+                        12,
+                        ['aria-hidden' => 'true']
+                    ); ?>
+                <?php endif; ?>
+
+                <?php if ($overflowStyleSticky && $crumbInfo['last']): ?>
+                    <span
+                        aria-hidden="true"
+                        class="separator block ml-2.5 pl-2.5 border-l border-slate-400 h-full"
+                        x-show="isSticky"
+                        x-cloak
+                    ></span>
+                <?php endif; ?>
+
+                <?php if ($crumbInfo['link'] || $crumbInfo['last']): ?>
+                    <a
+                        href="<?= $escaper->escapeUrl($crumbInfo['last'] ? $currentPageUrl : $crumbInfo['link']) ?>"
+                        class="flex items-center gap-1 w-full hover:text-blue-700 hover:underline aria-[current=page]:text-slate-500 hover:aria-[current=page]:text-blue-700"
+                        <?php if ($crumbInfo['title']): ?>
+                            aria-label="<?= $escaper->escapeHtmlAttr($crumbInfo['title']) ?>"
+                        <?php endif; ?>
+                        <?php if ($crumbInfo['last']): ?>
+                            aria-current="page"
+                        <?php endif; ?>
+                    >
+                        <span class="text-ellipsis overflow-hidden"><?= $escaper->escapeHtml($crumbInfo['label']) ?></span>
+                    </a>
+                <?php else: ?>
+                    <?= $escaper->escapeHtml($crumbInfo['label']) ?>
+                <?php endif; ?>
+            </li>
+            <?php if (! $skipLinkedDataJsonSchema){
+                $schemaBreadcrumbs[] = [
+                    "@type" => "ListItem",
+                    "position" => $crumbsCount,
+                    "item" => [
+                        "@id" => $crumbInfo['last'] ? $currentPageUrl : $crumbInfo['link'],
+                        "name" => $crumbInfo['label']
+                    ]
+                ];
+            } ?>
+        <?php $crumbsCount++; endforeach; ?>
+    </ol>
+</nav>
+
+<?php if (! $skipLinkedDataJsonSchema): ?>
+    <script type="application/ld+json">
+        { "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": <?= json_encode($schemaBreadcrumbs) ?> }
+    </script>
+<?php endif; ?>
+
+<?php if ($overflowStyleSticky): ?>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('initBreadcrumbs', () => ({
+            isSticky: false,
+            init() {
+                this.checkIfIsSticky();
+            },
+            setIsStickyClasses() {
+                const baseClasses = 'sticky bg-container right-[calc((theme(container.padding)*-1)-1px)]'
+                    + ' after:absolute after:inset-y-0 after:left-full after:w-[theme(container.padding)] after:bg-container';
+                const isStickyClasses = '[&>svg]:hidden pr-[theme(container.padding)] before:absolute before:inset-y-0 before:right-full before:w-8'
+                    + ' before:bg-gradient-to-l before:from-[theme(backgroundColor.container.DEFAULT)]';
+
+                return this.isSticky ? baseClasses + ' ' + isStickyClasses : baseClasses;
+            },
+            checkIfIsSticky() {
+                const el = this.$refs.lastItem;
+                if (!el) return;
+
+                new IntersectionObserver(([e]) => {
+                    const rect = e.target.getBoundingClientRect();
+                    this.isSticky = e.intersectionRatio < 1;
+                }, { threshold: [0, 1] }).observe(el);
+            }
+        }));
+    });
+</script>
+
+<?php endif; ?>
+

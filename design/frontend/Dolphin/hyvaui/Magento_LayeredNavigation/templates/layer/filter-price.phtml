@@ -1,0 +1,61 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\LayeredNavigation\Block\Navigation\FilterRenderer;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+/** @var FilterRenderer $block */
+/** @var Escaper $escaper */
+
+$filterTitle = $block->getFilterTitle();
+$filterId = $block->getFilterId();
+
+/** @var array $filterItems */
+?>
+
+<div
+    aria-role="group"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('%1 filter options', $filterTitle)) ?>"
+    x-data="filterPriceRange"
+    data-range-init-value="<?= count($filterItems) > 0 ? end($filterItems)->getUrl() : '' ?>"
+>   
+    <div class="flex justify-between items-center py-4 gap-6">
+        <input
+            type="number"
+            class="w-full flex-auto rounded-lg border-slate-300 bg-slate-50"
+            tabindex="-1"
+            :value="minprice"
+            :step="step"
+            :min="min"
+            :max="max"
+            @input="setMinPrice"            
+        >
+        <span class="text-sm"><?= $escaper->escapeHtml(__('to')) ?></span>
+        <input
+            type="number"
+            class="w-full flex-auto rounded-lg border-slate-300 bg-slate-50"
+            tabindex="-1"
+            :value="maxprice"
+            :step="step"
+            :min="min"
+            :max="max"
+            @input="setMaxPrice"
+        >
+    </div>
+    <a
+        :href="getFilterUrl"
+        class="btn btn-primary btn-size-sm justify-center"
+        aria-label="<?= $escaper->escapeHtml(__('Apply %1 Filter', $filterTitle)) ?>"
+    ><?= $escaper->escapeHtml(__('Apply Filter')) ?></a>
+</div>
+

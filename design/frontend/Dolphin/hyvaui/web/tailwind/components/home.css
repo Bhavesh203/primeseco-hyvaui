@@ -1,0 +1,73 @@
+.why_primes .cmsp2-container{
+    max-width: 1440px !important;
+    margin: auto;
+    @apply py-4 md:py-12 px-4;;
+}
+[data-content-type="row"]{
+    @apply my-0 py-7 md:py-12;
+}
+
+.home_banner_section .home_banner:nth-last-of-type(2) figcaption{   
+    text-align: center;
+    margin: auto;
+    p{
+        color: #FFFFFF;
+        text-align: center;
+    }
+    a{
+        margin: auto
+    }
+}
+
+.home_product_list_section, .eco-friendly-banner{
+    @apply !p-0;
+}
+.home_product_list .product-action{
+    @apply flex;
+    .btn-primary{
+        @apply bg-theme-color text-white;
+    }
+}
+.product-item-link {
+    @apply text-left text-lg lg:text-[22px] leading-6 lg:leading-7 h-12 lg:h-14 font-medium mb-2 line-clamp-2 max-w-full overflow-hidden text-ellipsis mx-auto my-0;        
+}
+.home_product_list .product-item{
+    @apply rounded-[20px];
+    .btn-secondary{
+        @apply w-full text-lg leading-6;
+        svg{
+            @apply hidden;
+        }
+    }
+    .action-secondary{
+        @apply hidden;        
+    }
+    .product.photo{
+        @apply pt-[97%];
+    }
+    .product-image-photo{
+        @apply absolute object-cover inset-0 h-full w-full;
+    }
+}
+.why_primes img{
+    @apply min-h-[371px] object-cover rounded-2xl;
+}
+.why_primes .pagebuilder-column-line{
+    gap: 20px;
+}
+.why_primes .why_info{
+    @apply flex flex-col !justify-center items-center md:mb-0;
+    .section-heading{
+        @apply text-left;
+    }
+    p{
+        @apply text-lg md:text-[22px] leading-6 md:leading-7
+    }
+}
+
+.new_range_banner img{
+@apply !h-[600px] w-full object-cover;
+}
+.new_range_banner+.home_product_list{
+    @apply -mt-[280px];
+}

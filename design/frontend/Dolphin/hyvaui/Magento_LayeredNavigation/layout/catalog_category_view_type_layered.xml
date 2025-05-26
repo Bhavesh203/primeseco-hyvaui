@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+-->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceBlock name="catalog.leftnav">
+            <arguments>
+                <argument name="active_open" xsi:type="boolean">true</argument> <!-- If the active filters are open by default (true/false) -->
+                <argument name="active_style" xsi:type="string">chips</argument> <!-- Show active options as (list/chips) -->
+                <argument name="show_input" xsi:type="boolean">true</argument> <!-- Show input with each option (true/false) -->
+                <argument name="show_price_slider" xsi:type="boolean">true</argument> <!-- Show price filter as range slider (true/false) -->
+                <argument name="open_by_ids" xsi:type="array">
+                    <item name="category" xsi:type="string">cat</item>
+                    <item name="price" xsi:type="string">price</item>
+                </argument>
+            </arguments>
+
+            <block
+                class="Magento\LayeredNavigation\Block\Navigation\FilterRenderer"
+                name="catalog.navigation.renderer.price"
+                as="renderer-price"
+                template="Magento_LayeredNavigation::layer/filter-price.phtml"
+            />
+        </referenceBlock>
+    </body>
+</page>

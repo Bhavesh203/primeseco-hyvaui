@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+-->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceBlock name="product.info.details">
+            <block
+                class="Magento\Review\Block\Product\View"
+                name="product-review-wrapper"
+                template="Magento_Review::product/view/section.phtml"
+                ifconfig="catalog/review/active"
+                group="detailed_info"
+            >
+                <arguments>
+                    <argument name="title" xsi:type="string" translate="true">Reviews</argument>
+                    <argument name="sort_order" xsi:type="number">0</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <move element="review_list" destination="product-review-wrapper"/>
+        <move element="product.review.form" destination="product-review-wrapper"/>
+    </body>
+</page>

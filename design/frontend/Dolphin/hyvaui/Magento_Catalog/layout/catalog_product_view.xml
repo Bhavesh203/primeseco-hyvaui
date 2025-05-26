@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+-->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceContainer name="main.content">
+            <block
+                class="Magento\Catalog\Block\Product\View"
+                name="product.info.addtocart.sticky"
+                template="Magento_Catalog::product/view/addtocart-sticky.phtml"
+                after="columns"
+            >
+                <arguments>
+                    <argument name="mobile_only" xsi:type="boolean">true</argument> <!-- Hide the Sticky.ATC on desktop -->
+                    <argument name="truncate_title" xsi:type="boolean">true</argument> <!-- Don't allow the title to wrap -->
+                    <argument name="only_show_after_add_to_cart" xsi:type="boolean">true</argument> <!-- Only show after passing the ATC btn -->
+                </arguments>
+                <block
+                    class="Magento\Catalog\Block\Product\Price"
+                    name="product.info.price.sticky"
+                    template="Magento_Catalog::product/view/price.phtml"
+                    as="price"
+                />
+            </block>
+        </referenceContainer>
+
+         <referenceBlock name="product.info.details">
+            <arguments>
+                <argument name="divider" xsi:type="boolean">false</argument> <!-- Show divider between items (true/false) -->
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="description">
+            <arguments>
+                <argument name="title" xsi:type="string" translate="true">Description</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

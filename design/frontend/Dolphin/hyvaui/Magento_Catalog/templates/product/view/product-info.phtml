@@ -1,0 +1,177 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductAttributes;
+use Hyva\Theme\ViewModel\ProductCompare;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\Wishlist;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var \Magento\Catalog\Model\Product $product */
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+/** @var ProductAttributes $attributesViewModel */
+$attributesViewModel = $viewModels->require(ProductAttributes::class);
+/** @var Product $product */
+$product = $productViewModel->getProduct();
+$productType = $product->getTypeId();
+$product = $block->getProduct();
+?>
+<div class="w-full max-md:mt-4">
+    <div class="priduct_brand uppercase text-light-gray text-xl leading-[25px] font-medium mb-5">
+        <?=
+        $this->getProduct()->getAttributeText('product_brand');
+        ?>
+    </div>
+    <div class="product_name text-left font-bold text-[30px] lg:text-[44px] leading-8 lg:leading-[55px] line-clamp-2">
+        <?php
+            echo $product->getName();
+        ?>
+    </div>
+    <div class="my-2 flex">
+        <?= $block->getChildHtml('product.info.review') ?>
+    </div>
+
+
+    <div class="flex flex-col sm:flex-row justify-between my-4">
+        <?= $block->getChildHtml("product.info.stockstatus") ?>
+        <?= $block->getChildHtml("alert.urls") ?>
+    </div>
+
+    <div role="group" aria-label="<?= $escaper->escapeHtmlAttr('Price') ?>">
+        <?= $block->getChildHtml("product.info.price") ?>
+    </div>
+
+    
+
+    <?= $block->getChildHtml('product.info.form') ?>
+
+    <div class="flex flex-col">
+
+        <?php if ($productType === 'bundle'): ?>
+            <span class="sr-only">
+                <?= $escaper->escapeHtml(__('The price depends on the chosen options')) ?>
+            </span>
+        <?php endif; ?>
+
+
+        <div class="flex flex-col">
+            <?php if ($product->isSaleable()): ?>
+                <?= $block->getChildHtml("product.info.quantity") ?>
+                <div class="flex gap-2">
+                    <!-- Add to Cart Button -->                    
+                    <?= $block->getChildHtml("product.info.addtocart") ?>                    
+
+                    <!-- Buy Now Button -->
+                    <button
+                        type="button"
+                        class="btn btn-primary justify-center flex-1 px-6 py-2 rounded border transition"
+                        x-on:click="buyNow(<?= $product->getId() ?>, qty)"
+                    >
+                        <?= $escaper->escapeHtml(__('Buy Now')) ?>
+                    </button>
+            <?php endif; ?>
+
+        </div>
+
+    </div>
+
+    <?php if ($product->isSaleable()): ?>
+        <div class=" hidden mt-4 justify-end">
+            <?= $block->getChildHtml('addtocart.shortcut.buttons') ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="hidden mt-4 justify-end">
+        <?= $block->getChildHtml('product.info.addtowishlist'); ?>
+        <?= $block->getChildHtml('product.info.addtocompare'); ?>
+        <?= $block->getChildHtml('product.info.emailtofriend'); ?>
+        <?= $block->getChildHtml('product.info.additional.actions'); ?>
+    </div>
+
+    <?php if ($tierPriceBlock = $block->getChildHtml("product.price.tier")): ?>
+        <div class="py-4 my-2 tier-price-container">
+            <?= /** @noEscape */ $tierPriceBlock ?>
+        </div>
+    <?php endif; ?>
+<div class="my-4 lg:my-8 flex flex-col gap-5">
+    <?php if ($shortDescription = $productViewModel->getShortDescription()) { ?>
+       <div x-data="{ open: false }" class="mb-4">
+           <h4 @click="open = !open" class="des-title cursor-pointer flex justify-between items-center text-black font-medium text-[25px] leading-[31px]">
+               Product Description
+               <svg :class="{'transform rotate-180': open}" class="w-4 h-4 ml-2 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                       d="M19 9l-7 7-7-7"/>
+               </svg>
+           </h4>
+           <div x-show="open" x-collapse class="leading-relaxed product-description prose mt-5">
+               <?= /* @noEscape */ $shortDescription ?>
+           </div>
+       </div>
+    <?php } ?>
+    
+    <dl x-data="{ open: false }" id="product-details" class="border border-x-0 border-[#C5C5C5] py-2 lg:py-4">
+       <h4 @click="open = !open" class="cursor-pointer flex justify-between items-center text-black font-medium text-[25px] leading-[31px]">
+           Product Details
+           <svg :class="{'transform rotate-180': open}" class="w-4 h-4 ml-2 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                       d="M19 9l-7 7-7-7"/>
+           </svg>
+       </h4>
+       <div x-show="open" x-collapse class="mt-5">
+           <?php foreach ($block->getAttributes() as $attributeConfig):
+               $attribute = $attributesViewModel->getAttributeFromLayoutConfig($attributeConfig); ?>
+               <?php if ($value = $attribute['value'] ?? null): ?>
+                   <div class="flex border-t border-gray-300 py-2 last:border-b <?=/* @noEscape */ $attribute['value'] ?: "" ?>">
+                       <dt class="w-1/2 text-left text-gray-700 product-detail-label">
+                           <?= $escaper->escapeHtml($attribute['label']) ?>
+                       </dt>
+                       <dd class="w-1/2 ml-2 text-left text-gray-900 product-detail-value">
+                           <?= $escaper->escapeHtml($value) ?>
+                       </dd>
+                   </div>
+               <?php endif ?>
+           <?php endforeach; ?>
+       </div>
+    </dl>
+    
+    <?= $block->getChildHtml("product.info.additional") ?>
+</div>
+
+</div>
+<script>
+    function buyNow(productId, qty) {
+        const formData = new FormData();
+        formData.append('product', productId);
+        formData.append('qty', qty);
+
+        fetch('<?= $block->getUrl('checkout/cart/add') ?>', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams(formData)
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = '<?= $block->getUrl('checkout') ?>';
+            }
+        });
+    }
+</script>

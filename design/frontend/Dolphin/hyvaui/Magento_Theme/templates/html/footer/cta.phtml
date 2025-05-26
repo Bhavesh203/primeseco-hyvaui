@@ -1,0 +1,102 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var HeroiconsSolid $heroIcons */
+$heroIconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$socialIconsSize = 40;
+?>
+
+<div class="bg-theme-color text-black">
+    <div class="container lg:flex lg:justify-between lg:gap-4">
+        <div class="py-8 sm:flex text-white">
+            <div class="container flex gap-x-4 lg:px-0 lg:max-w-none">
+                <?= $heroIconsSolid->chatAlt2Html('shrink-0 ml-auto sm:ml-0', 64, 64, ['aria-hidden' => 'true']) ?>
+                <div class="max-w-4xl">
+                    <p class="text-lg mb-1.5">
+                        <strong><?= $escaper->escapeHtml(__('We’re happy to help')) ?></strong>
+                    </p>
+                    <p class="text-blue-100">
+                        <?= $escaper->escapeHtml(
+                            __(
+                                'View our <a class="underline hover:no-underline" href="%1">frequently asked questions</a>'
+                                . ', <a class="underline hover:no-underline" href="%2">track your order</a>'
+                                . ' or <a class="underline hover:no-underline" href="%3">get in touch</a> with any question you might have.',
+                                $block->getUrl('#'),
+                                $block->getUrl('sales/order/history'),
+                                $block->getUrl('contact')
+                            ), ['a']
+                        ) ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="container flex justify-center flex-col lg:text-white lg:px-0 lg:max-w-none">
+            <div class="pt-8 mb-4 text-lg font-bold text-center lg:text-right lg:text-base">
+                <?= $escaper->escapeHtml(__('Follow us')) ?>
+            </div>
+            <div class="flex justify-center gap-2 pb-8 border-b border-zinc-200 lg:border-b-0 lg:justify-end">
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-theme-dark text-white rounded-lg bg-theme-dark"
+                >
+                    <?= $hyvaIcons->socialFacebookHtml('', $socialIconsSize, $socialIconsSize, [
+                        'title' => __('Follow us on %1', 'Facebook')
+                    ]) ?>
+                </a>
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-theme-dark text-white rounded-lg bg-theme-dark"
+                >
+                    <?= $hyvaIcons->socialInstagramHtml('', $socialIconsSize, $socialIconsSize, [
+                        'title' => __('Follow us on %1', 'Instagram')
+                    ]) ?>
+                </a>
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-theme-dark text-white rounded-lg bg-theme-dark"
+                >
+                    <?= $hyvaIcons->socialPinterestHtml('', $socialIconsSize, $socialIconsSize, [
+                        'title' => __('Follow us on %1', 'Pinterest')
+                    ]) ?>
+                </a>
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-theme-dark text-white rounded-lg bg-theme-dark"
+                >
+                    <?= $hyvaIcons->socialTwitterHtml('', $socialIconsSize, $socialIconsSize, [
+                        'title' => __('Follow us on %1', 'Twitter')
+                    ]) ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

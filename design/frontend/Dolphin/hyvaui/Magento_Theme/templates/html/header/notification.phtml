@@ -1,0 +1,114 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/**
+ * This notification is made sticky on mobile to completely remove Layout Shifts.
+ * On desktop, the banner is hidden until the component initialises. This causes a
+ * tiny layout shift on page load.
+ *
+ * Because the visibility of the banner is determined on the frontend by a cookie,
+ * you can't get around the delay. It can't be rendered by the backend, because
+ * cookies are not available in combination with Full Page Cache.
+ **/
+?>
+
+<script>
+    function initHeaderNotification() {
+        const closedCookieName = 'header-notification-closed';
+
+        /**
+         * Add closedCookieName to list of first-party cookies
+         * otherwise it would keep reappearing while cookie consent is missing
+         */
+        window.cookie_consent_config['necessary'] = [].concat(
+            window.cookie_consent_config['necessary'] || [],
+            [closedCookieName]
+        );
+
+        return {
+            notificationOpen: false,
+            closedCookieName: closedCookieName,
+            init() {
+                this.notificationOpen = this.shouldShowNotification()
+            },
+            closeNotification() {
+                this.notificationOpen = false;
+                this.setCloseCookie();
+            },
+            setCloseCookie() {
+                hyva.setCookie(this.closedCookieName, true, 30);
+            },
+            shouldShowNotification() {
+                return !hyva.getCookie(this.closedCookieName);
+            },
+            eventListeners: {
+                ['@scroll.window']() {
+                    const isScrolledPast = (window.scrollY >= document.getElementById('header').clientHeight);
+                    const stickyClass = ['fixed', 'top-0', 'inset-x-0'];
+                    const initialClass = ['absolute'];
+                    if (isScrolledPast) {
+                        this.$root.classList.add(...stickyClass);
+                        this.$root.classList.remove(...initialClass);
+                    } else {
+                        this.$root.classList.add(...initialClass);
+                        this.$root.classList.remove(...stickyClass);
+                    }
+                }
+            }
+        }
+    }
+    window.addEventListener('alpine:init', () => Alpine.data('initHeaderNotification', initHeaderNotification), { once: true });
+</script>
+
+<div
+    id="header-notification"
+    class="absolute z-20 container block py-2 sm:static sm:z-auto"
+    x-data="initHeaderNotification"
+    x-show="notificationOpen"
+    x-cloak
+    x-bind="eventListeners"
+>
+    <div class="flex items-center justify-between gap-3 p-4 rounded-xl shadow-lg bg-blue-900 text-white">
+        <a
+            href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+            class="font-semibold text-sm hover:underline"
+        >
+            <?= $escaper->escapeHtml(__('Get ready for a dazzling summer with our new arrivals')) ?>
+            <?= $heroicons->chevronRightHtml(
+                'inline-block align-text-bottom text-blue-300',
+                16,
+                16,
+                ['aria-hidden' => 'true', 'stroke-width' => '4']
+            ); ?>
+        </a>
+        <button
+            type="button"
+            @click="closeNotification"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Close Notification')) ?>"
+            title="<?= $escaper->escapeHtmlAttr(__('Close Notification')) ?>"
+        >
+            <?= $heroicons->xHtml('text-blue-200', 24, 24, ['aria-hidden' => 'true']) ?>
+        </button>
+    </div>
+</div>

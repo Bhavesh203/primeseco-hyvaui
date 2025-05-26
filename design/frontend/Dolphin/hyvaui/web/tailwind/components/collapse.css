@@ -1,0 +1,25 @@
+@layer components {
+    .collapse {
+        interpolate-size: allow-keywords;
+
+        & summary {
+            @apply flex w-full items-center justify-between font-bold cursor-pointer;
+
+            &::-webkit-details-marker {
+                @apply hidden;
+            }
+        }
+
+        &::details-content {
+            @apply h-0 opacity-0;
+            transition-property: height, opacity, content-visibility;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+            transition-behavior: allow-discrete;
+        }
+
+        &[open]::details-content {
+            @apply h-auto opacity-100;
+        }
+    }
+}
