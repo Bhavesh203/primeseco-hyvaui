@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+-->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>   
+
+        <referenceBlock name="breadcrumbs">
+            <arguments>
+                <argument name="show_back_btn" xsi:type="boolean">true</argument> <!-- Show back button on mobile (true/false) -->
+                <argument name="overflow_style" xsi:type="string">normal</argument> <!-- Overflow style (normal/sticky) -->
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="script-alpine-js">
+            <block name="alpine-plugin-snap-slider" template="Magento_Theme::page/js/plugins/snap-slider.phtml" />                            
+        </referenceBlock>
+        <referenceBlock name="hero" remove="true"/>
+        <referenceBlock name="content-1" remove="true"/>   
+        <referenceBlock name="slider-1" remove="true"/>   
+
+        <referenceContainer name="after.body.start">
+            <block class="Magento\Cms\Block\Block" name="page.top.block">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">page-top</argument>
+                </arguments>
+            </block>
+        </referenceContainer> 
+        
+                           <!-- Header -->
+                           
+        <referenceBlock name="top.container">
+            <block name="header-notification" template="Magento_Theme::html/header/notification.phtml"/>
+        </referenceBlock>
+
+        <referenceBlock name="header-content">
+            <arguments>
+                <argument name="show_compare" xsi:type="boolean">false</argument> <!-- Show compare button (true/false) -->
+                <argument name="show_wishlist" xsi:type="boolean">false</argument> <!-- Show wishlist button (true/false) -->
+            </arguments>
+            <block name="header.compare" as="compare" template="Magento_Theme::html/header/compare.phtml"/>
+        </referenceBlock>                           
+
+        <referenceBlock name="topmenu_desktop">
+            <arguments>
+                <argument name="open_top_level_menu_on_hover" xsi:type="boolean">true</argument> <!-- Also open on hover (true/false)-->
+                <argument name="max_level" xsi:type="number">4</argument> <!-- Max Menu depth to show -->
+                <argument name="top_menu_cta_item" xsi:type="string" translate="true">Sale</argument> <!-- top Menu Item to Highlight -->
+            </arguments>
+            <block
+                name="topmenu_desktop_item"
+                template="Magento_Theme::html/header/menu/desktop-item.phtml"
+            />
+        </referenceBlock>   
+
+        <referenceBlock name="script-alpine-js">
+            <block name="alpine-plugin-htmldialog" template="Magento_Theme::page/js/plugins/htmldialog.phtml"/>
+        </referenceBlock>
+
+        <referenceBlock name="topmenu_mobile">
+            <block name="topmenu_mobile_item" template="Magento_Theme::html/header/menu/mobile-item.phtml"/>
+            <arguments>
+                <argument name="max_level" xsi:type="number">4</argument> <!-- Max Menu depth to show -->
+                <argument name="show_search" xsi:type="boolean">true</argument> <!-- Show Search (true/false) -->
+                <argument name="show_socials" xsi:type="boolean">true</argument> <!-- Show Social Icons (true/false) -->
+                <argument name="show_settings_nav" xsi:type="boolean">true</argument> <!-- Show Settings Nav (true/false) -->
+
+                <argument name="additional_menu_items_before" xsi:type="array">
+                    <item name="home" xsi:type="array">
+                        <item name="url" xsi:type="string">/</item>
+                        <item name="name" xsi:type="string" translate="true">Home</item>
+                    </item>
+                </argument>
+
+                <argument name="additional_menu_items" xsi:type="array">
+                    <!-- <item name="contact" xsi:type="array">
+                        <item name="url" xsi:type="string">contact</item>
+                        <item name="name" xsi:type="string" translate="true">Contact</item>
+                    </item> -->
+                </argument>
+            </arguments>
+
+            <block
+                class="Magento\Theme\Block\Html\Header\Logo"
+                name="topmenu_mobile.logo"
+                template="Magento_Theme::html/header/menu/mobile-logo.phtml"
+                as="logo"
+            >
+                <arguments>
+                    <argument name="max_width" xsi:type="number">104</argument>
+                    <argument name="max_height" xsi:type="number">48</argument>
+                </arguments>
+            </block>
+            <block name="topmenu_mobile.search" as="search" template="Magento_Theme::html/header/simple-search.phtml"/>
+            <block name="topmenu_mobile.social" as="socials" template="Magento_Theme::html/header/social-icons.phtml"/>
+
+            <container name="topmenu_mobile.additional.wrapper" as="additional">
+                <block name="topmenu_mobile.cta" template="Magento_Theme::html/header/menu/mobile-cta.phtml"/>
+                <container name="topmenu_mobile.additional" label="Mobile Menu Footer"/>
+            </container>
+        </referenceBlock>
+
+        <referenceBlock name="script-alpine-js">
+            <block name="alpine-plugin-htmldialog" template="Magento_Theme::page/js/plugins/htmldialog.phtml"/>
+        </referenceBlock>
+
+        <!-- footer -->
+
+        <referenceContainer name="footer-content-before">
+            <block name="footer-cta" template="Magento_Theme::html/footer/cta.phtml"/>
+        </referenceContainer>
+        <referenceContainer name="footer-content-after">
+            <block name="footer-usps" template="Magento_Theme::html/footer/usps.phtml" before="-"/>
+        </referenceContainer>
+
+        <move element="footer-static-links" destination="footer_column_1"/>
+        <referenceBlock name="footer-content">
+            <container name="footer-content-before"/>
+            <block name="footer_column_1" template="Magento_Theme::html/footer/collapse.phtml">
+                <arguments>
+                    <argument name="title" xsi:type="string" translate="true">Shop</argument>
+                    <argument name="open" xsi:type="boolean">true</argument> <!-- Set the collapse to be open by default on mobile (true/false) -->
+                </arguments>
+                <!-- If you want to use the links as a static block -->
+                <!-- <block class="Magento\Cms\Block\Block" name="footer-cms-content">
+                    <arguments>
+                        <argument name="block_id" xsi:type="string">footer_content_1</argument>
+                    </arguments>
+                </block> -->
+            </block>
+            <block name="footer_column_2" template="Magento_Theme::html/footer/collapse.phtml" after="footer_column_1">
+                <arguments>
+                    <argument name="title" xsi:type="string" translate="true">Customer Service</argument>
+                </arguments>
+                <block name="footer-static-links-services" template="Magento_Theme::html/footer/links-services.phtml"/>
+            </block>
+            <block name="footer_column_3" template="Magento_Theme::html/footer/collapse.phtml" after="footer_column_2">
+                <arguments>
+                    <argument name="title" xsi:type="string" translate="true">Our Company</argument>
+                </arguments>
+                <block name="footer-static-links-company" template="Magento_Theme::html/footer/links-company.phtml"/>
+            </block>
+            <block name="footer_column_4" template="Magento_Theme::html/footer/collapse.phtml" after="footer_column_3">
+                <arguments>
+                    <argument name="title" xsi:type="string" translate="true">My Account</argument>
+                </arguments>
+                <block name="footer_menu_4" template="Magento_Theme::html/footer/menu-account.phtml"/>
+            </block>
+            <container name="footer-content-after">
+                <block name="footer-payment" template="Magento_Theme::html/footer/payment.phtml"/>
+            </container>
+        </referenceBlock>
+        <!-- <referenceContainer name="content">
+            <block name="slider-b" template="Magento_Theme::elements/slider-b.phtml">
+                <arguments>
+                    <argument name="show_title" xsi:type="boolean">true</argument> 
+                </arguments>
+            </block>
+        </referenceContainer> -->
+        
+<!-- SCROLL TO TOP -->
+        <referenceContainer name="before.body.end">
+            <block name="scroll.to.top" template="Magento_Theme::scroll-to-top.phtml">
+                <arguments>
+                    <argument name="position" xsi:type="string">end</argument> <!-- Button position (start/center/end) -->
+                    <argument name="visible_offset" xsi:type="number">200</argument> <!-- Offset before showing the button -->
+                    <argument name="visible_only_to_top" xsi:type="boolean">true</argument> <!-- Only show when scrolling to top (true/false) -->
+                    <argument name="hide_on_inactivity" xsi:type="number">4000</argument> <!-- Hide after x ms -->
+                </arguments>
+            </block>
+        </referenceContainer>
+
+        <referenceBlock name="script-alpine-js">
+            <block name="alpine-plugin-ajax-cart" template="Magento_Theme::page/js/plugins/ajax-cart.phtml">
+                <arguments>
+                    <argument name="delay" xsi:type="number">500</argument> <!-- Extra delay in milliseconds added to the loader (true/false) -->
+                    <argument name="show_sku" xsi:type="boolean">true</argument> <!-- Show Sku (true/false) -->
+                    <argument name="display_on_success" xsi:type="string">modal</argument> <!-- What to show on success (false/minicart/modal) -->
+                </arguments>
+            </block>
+        </referenceBlock>
+
+         <referenceBlock name="script-alpine-js">
+            <block name="alpine-plugin-collapse" template="Magento_Theme::page/js/plugins/collapse.phtml"/>
+        </referenceBlock>
+
+
+        <referenceBlock name="cart-drawer">
+            <arguments>
+                <argument name="show_sku" xsi:type="boolean">true</argument> <!-- Show sku in product options (true/false) -->
+                <argument name="qty_style" xsi:type="string">input</argument> <!-- Qty style (text/input/select/incrementor) -->
+            </arguments>
+            <block name="cart-drawer.qtybox" template="Magento_Theme::html/cart/qtybox.phtml"/>
+        </referenceBlock>
+    </body>
+</page>

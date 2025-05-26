@@ -1,0 +1,169 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\ReCaptcha;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+use Magento\Newsletter\Block\Subscribe;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsSolid $heroIcons */
+$heroIcons = $viewModels->require(HeroiconsSolid::class);
+
+/** @var Subscribe $newsletterBlock */
+$newsletterBlock = $block->getLayout()->createBlock(Subscribe::class);
+
+$recaptchaViewModel = $newsletterBlock->getData('viewModelRecaptcha');
+$recaptchaInputField = '';
+$recaptchaLegalNotice = '';
+if ($recaptchaViewModel !== null && $recaptchaData = $recaptchaViewModel->getRecaptchaData('newsletter')) {
+    $recaptchaInputField = $newsletterBlock->getBlockHtml($recaptchaData[ReCaptcha::RECAPTCHA_INPUT_FIELD]);
+    $recaptchaLegalNotice = $newsletterBlock->getBlockHtml($recaptchaData[ReCaptcha::RECAPTCHA_LEGAL_NOTICE_BLOCK]);
+}
+?>
+<div x-data="initNewsletterFormModal">
+    <template x-if="shouldShowModal">
+        <dialog
+            id="newsletter-modal"
+            x-show="open"
+            x-transition
+            x-htmldialog="closeModal"
+            class="rounded-xl open:flex flex-col lg:flex-row w-full sm:max-w-lg lg:max-w-4xl shadow-xl"
+        >
+            <button
+                class="absolute right-6 top-6 text-slate-500 hover:text-slate-900"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Close panel')) ?>"
+                @click="closeModal"
+            >
+                <?= $heroIcons->xHtml('fill-current', 32, 32, ['aria-hidden' => 'true']) ?>
+            </button>
+            <div class="w-full lg:w-72 h-72 lg:h-auto">
+                <img
+                    class="w-full h-full object-cover"
+                    alt="<?= $escaper->escapeHtml(__('Subscribe to our newsletter')) ?>"
+                    width="640"
+                    height="288"
+                    loading="eager"
+                    src="https://unsplash.com/photos/mJuiGg87f-Y/download?ixid=MnwxMjA3fDB8MXxhbGx8MTN8fHx8fHwyfHwxNjY4NjgwMjc4&force=true&w=640"
+                >
+            </div>
+            <div class="py-8 px-6 text-center bg-white lg:text-left lg:grow">
+                <p id="modal-title" class="text-3xl leading-9 font-bold text-slate-800 mb-2">
+                    <?= $escaper->escapeHtml(__('Subscribe to our newsletter')) ?>
+                </p>
+                <p class="text-slate-600">
+                    <?= $escaper->escapeHtml(__('Stay up-to-date with our latest news and offers.')) ?>
+                </p>
+                <form
+                    id="newsletter-validate-modal"
+                    action="<?= $escaper->escapeUrl($newsletterBlock->getFormActionUrl()) ?>"
+                    method="post"
+                    @submit.prevent="submitForm"
+                    class="flex flex-col gap-4 mt-8 lg:items-end"
+                >
+                    <label
+                        class="sr-only"
+                        for="newsletter-subscribe-modal"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Email address')) ?>"
+                    ><?= $escaper->escapeHtml(__('Email address')) ?></label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="newsletter-subscribe-modal"
+                        required
+                        class="border-slate-300 rounded-md border py-2.5 px-3.5 w-full placeholder:text-slate-500"
+                        placeholder="<?= $escaper->escapeHtmlAttr(__('Enter your email address')) ?>"
+                        autofocus
+                    >
+                    <?= $newsletterBlock->getBlockHtml('formkey') ?>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    ><?= $escaper->escapeHtml(__('Subscribe')) ?></button>
+                    <?= $recaptchaInputField ?>
+                    <template x-if="displayErrorMessage">
+                        <p class="flex items-center text-red">
+                            <span class="inline-block w-8 h-8 mr-3">
+                                <?= $heroIcons->exclamationCircleHtml('', 24, 24, ['aria-hidden' => true]) ?>
+                            </span>
+                            <template x-for="errorMessage in errorMessages">
+                                <span x-html="errorMessage"></span>
+                            </template>
+                        </p>
+                    </template>
+                </form>
+                <?= $recaptchaLegalNotice ?>
+            </div>
+        </dialog>
+    </template>
+</div>
+
+<script>
+    function initNewsletterFormModal() {
+        const closedCookieName = 'newsletter-modal-closed';
+        const waitForShowingTime = 3000; // ms
+
+        /**
+         * Add closedCookieName to list of first-party cookies
+         * otherwise it would keep reappearing while cookie consent is missing
+         */
+        window.cookie_consent_config['necessary'] = [].concat(
+            window.cookie_consent_config['necessary'] || [],
+            [closedCookieName]
+        );
+
+        return {
+            open: false,
+            closedCookieName: closedCookieName,
+            errors: 0,
+            hasCaptchaToken: 0,
+            displayErrorMessage: false,
+            errorMessages: [],
+            init() {
+                /** Customize when this modal should appear here */
+                this.shouldShowModal() && setTimeout(() => {
+                    this.open = true
+                }, waitForShowingTime);
+            },
+            closeModal() {
+                this.setCloseCookie();
+            },
+            setErrorMessages(messages) {
+                this.errorMessages = [messages]
+                this.displayErrorMessage = this.errorMessages.length
+            },
+            submitForm() {
+                const $form = document.querySelector('#newsletter-validate-modal');
+                <?= $newsletterBlock->getChildHtml('recaptcha_validation_newsletter'); ?>
+
+                if (this.errors === 0) {
+                    this.setCloseCookie();
+                    $form.submit();
+                }
+            },
+            setCloseCookie() {
+                hyva.setCookie(this.closedCookieName, true, 365);
+                this.open = false;
+            },
+            shouldShowModal() {
+                return !hyva.getCookie(this.closedCookieName);
+            }
+        }
+    }
+    window.addEventListener('alpine:init', () => Alpine.data('initNewsletterFormModal', initNewsletterFormModal), { once: true });
+</script>
+

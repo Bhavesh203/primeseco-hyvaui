@@ -1,0 +1,85 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$visibleOffset = (int) $block->getVisibleOffset() ?: 200;
+$visibleOnlyToTop = $block->getVisibleOnlyToTop() !== null ? (bool) $block->getVisibleOnlyToTop() : true;
+$hideOnInactivity = $block->getHideOnInactivity() !== null ? (int) $block->getHideOnInactivity() : 4000;
+$scrollToTopPosition = $block->getPosition() === "center"
+    ? 'inset-x-2'
+    : ($block->getPosition() === "start"
+        ? 'left-4 sm:right-auto sm:left-8 md:left-12 lg:left-20'
+        : 'right-4 sm:left-auto sm:right-8 md:right-12 lg:right-20');
+?>
+
+<div
+    id="scroll-to-top"
+    class="z-30 fixed bottom-6 sm:bottom-12 lg:bottom-16 <?= $scrollToTopPosition ?>"
+    x-data="initScrollToTop"
+    x-cloak
+    x-show="visible"
+    x-transition.duration.250ms
+    x-bind="eventListeners"
+>
+    <button
+        type="button"
+        class="btn shadow-lg rounded-full mx-auto p-3"
+        @click="scrollToTop"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Scroll back to the top of the page')); ?>"
+    >
+        <?= $heroicons->arrowUpHtml('', 24, 24, ['aria-hidden' => 'true']); ?>
+    </button>
+
+    <script>
+        function initScrollToTop() {
+            return {
+                visible: false,
+                scrollOffset: <?= $visibleOffset ?>,
+                scrollPosition: 0,
+                init() {
+                    scrollPosition = document.documentElement.scrollTop;
+                    this.$watch('scrollPosition', (pos, prevPos) => {
+                        this.visible = <?= $visibleOnlyToTop
+                            ? 'pos > this.scrollOffset && pos < prevPos'
+                            : 'pos > this.scrollOffset' ?>;
+                    });
+                },
+                scrollToTop() {
+                    this.visible = false;
+                    document.documentElement.scrollIntoView({ behavior: 'smooth' })
+                },
+                eventListeners: {
+                    ['@scroll.window.throttle.50ms']() {
+                        this.scrollPosition = document.documentElement.scrollTop;
+                    },
+                    <?php if ($hideOnInactivity > 0): ?>
+                        ['@scroll.window.debounce.<?= $escaper->escapeHtmlAttr($hideOnInactivity); ?>ms']() {
+                            this.visible = false;
+                        }
+                    <?php endif; ?>
+                }
+            }
+        }
+        window.addEventListener('alpine:init', () => Alpine.data('initScrollToTop', initScrollToTop), { once: true });
+    </script>    
+</div>

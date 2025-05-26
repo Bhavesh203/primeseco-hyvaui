@@ -1,0 +1,330 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var HyvaCsp $hyvaCsp */
+
+?>
+<script>
+    (() => {
+        function alpineSnapSlider(Alpine) {
+            function roundUpIfGreaterThan(number, min = 8) {
+                const decimalPart = number - Math.floor(number);
+                return decimalPart >= min ? Math.ceil(number) : Math.floor(number);
+            }
+            Alpine.directive("snap-slider", (el, { modifiers }, { cleanup }) => {
+                const track = el.querySelector("[data-track]");
+                if (!track) {
+                    console.warn(
+                        "No Slider track defined, reverting back to CSS slider.\nPlease create a wrapper element for your slides with the attribute data-track"
+                    );
+                    return;
+                }
+                let initialLoad = true;
+                let pager = el.querySelector("[data-pager]");
+                let slides = [];
+                let inViewObserver, mutationObserver, resizeObserver;
+                const navBtns = Array.from(
+                    el.querySelectorAll("[data-next], [data-prev]")
+                );
+                const slideLabelSepparator = el.dataset.slideLabelSepparator || "of";
+                const useAutoPager = modifiers.includes("auto-pager");
+                const useGroupPager = modifiers.includes("group-pager");
+                const sliderLabel = el.hasAttribute("aria-label") && el.getAttribute("aria-label").toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
+                const sliderId = el.id || sliderLabel || "slider";
+                const markerIdName = "data-target-id";
+                const pagerClasses = el.dataset.pagerClass || "pager";
+                const markerClasses = el.dataset.markerClass || "pager-item";
+                function getInViewItems() {
+                    const inViewSlides = track.querySelectorAll("[data-in-view]");
+                    const firstInViewSlide = inViewSlides[0] || null;
+                    const lastInViewSlide = inViewSlides[inViewSlides.length - 1] || null;
+                    const isAtStart = firstInViewSlide === slides[0];
+                    const isAtEnd = lastInViewSlide === slides[slides.length - 1];
+                    return {
+                        inViewSlides,
+                        totalInViewSlides: inViewSlides.length,
+                        firstInViewSlide,
+                        lastInViewSlide,
+                        isAtStart,
+                        isAtEnd,
+                        hasNoOverflow: isAtStart && isAtEnd
+                    };
+                }
+                function groupPagerMarkers() {
+                    if (!pager || !useGroupPager) return;
+                    const totalVisibleSlides = roundUpIfGreaterThan(
+                        track.offsetWidth / slides[0].offsetWidth
+                    );
+                    const markers = Array.from(pager.querySelectorAll("a, button"));
+                    markers.forEach((marker, index) => {
+                        marker.style.display = index % totalVisibleSlides === 0 ? null : "none";
+                    });
+                }
+                function handleInView(entries) {
+                    entries.forEach((entry) => {
+                        const marker = pager && (pager.querySelector(`[href="#${entry.target.id}"]`) || pager.querySelector(
+                            `[${markerIdName}="${entry.target.id}"]`
+                        ));
+                        entry.target.toggleAttribute(
+                            "data-in-view",
+                            entry.isIntersecting
+                        );
+                        entry.target.toggleAttribute("inert", !entry.isIntersecting);
+                        marker?.setAttribute("aria-current", entry.isIntersecting);
+                        marker?.setAttribute(
+                            "tabindex",
+                            entry.isIntersecting ? "0" : "-1"
+                        );
+                    });
+                    const { isAtStart, isAtEnd, hasNoOverflow } = getInViewItems();
+                    navBtns.forEach((btn) => {
+                        if (btn.hasAttribute("data-next")) {
+                            btn.style.visibility = hasNoOverflow ? "hidden" : null;
+                            isAtEnd ? btn.setAttribute("disabled", "") : btn.removeAttribute("disabled");
+                        }
+                        if (btn.hasAttribute("data-prev")) {
+                            btn.style.visibility = hasNoOverflow ? "hidden" : null;
+                            isAtStart ? btn.setAttribute("disabled", "") : btn.removeAttribute("disabled");
+                        }
+                    });
+                    if (pager) {
+                        pager.style.visibility = hasNoOverflow ? "hidden" : null;
+                    }
+                    if (!initialLoad) {
+                        el.dispatchEvent(
+                            new CustomEvent("slideChange", { detail: getInViewItems() })
+                        );
+                    } else {
+                        initialLoad = false;
+                    }
+                    if (document.activeElement.parentElement.hasAttribute("data-pager")) {
+                        const activeItems = pager.querySelectorAll('[tabindex="0"]');
+                        if (activeItems.length) {
+                            activeItems[0].focus();
+                        }
+                    }
+                }
+                function getSlides() {
+                    if (!track) return [];
+                    return Array.from(track.children).filter(
+                        (child) => child.tagName.toLowerCase() !== "template" && child.tagName.toLowerCase() !== "script"
+                    );
+                }
+                function refreshSlides() {
+                    initialLoad = true;
+                    slides = getSlides();
+                    setupSlides();
+                    if (useAutoPager) {
+                        createPager();
+                    } else {
+                        setupPager();
+                    }
+                    groupPagerMarkers();
+                    setupObservers();
+                }
+                function setupSlides() {
+                    slides = getSlides();
+                    slides.forEach((slide, index) => {
+                        const totalSlides = slides.length;
+                        const currentSlide = index + 1;
+                        const existingLabel = slide.getAttribute("aria-label") || "";
+                        const isImage = slide.tagName.toLowerCase() === "img" || slide.tagName.toLowerCase() === "picture";
+                        const slideLabelTag = isImage ? "alt" : "aria-label";
+                        const hasAutoLabel = existingLabel.startsWith(`${currentSlide} ${slideLabelSepparator} `);
+                        if (!slide.hasAttribute("id")) {
+                            slide.setAttribute("id", `${sliderId}-item-${currentSlide}`);
+                        }
+
+                        if ((!slide.hasAttribute(slideLabelTag) || slide.getAttribute(slideLabelTag) === "") || hasAutoLabel) {
+                            slide.setAttribute(slideLabelTag, `${currentSlide} ${slideLabelSepparator} ${totalSlides}`);
+                        }
+
+                        if (slide.tagName.toLowerCase() === "div" && !slide.hasAttribute("role")) {
+                            slide.setAttribute("role", "group");
+                        }
+
+                        if (pager && !isImage) {
+                            slide.setAttribute("role", "tabpanel");
+                        }
+
+                        if (slide.getAttribute('role') === "group") {
+                            slide.setAttribute("aria-roledescription", "item");
+                        }
+                    });
+                    if (!el.hasAttribute("role")) {
+                        el.setAttribute("role", "region");
+                    }
+                    if (!el.hasAttribute("aria-roledescription")) {
+                        el.setAttribute("aria-roledescription", "carousel");
+                    }
+                    track.setAttribute("tabindex", 0);
+                    track.setAttribute("aria-live", "polite");
+                }
+                function setupNav() {
+                    navBtns.forEach((btn) => {
+                        btn.setAttribute("disabled", "");
+                        btn.removeAttribute("hidden");
+                        btn.classList.remove("invisible");
+                        btn.style.visibility = null;
+                    });
+                }
+                function createPager() {
+                    const newPager = document.createElement("nav");
+                    newPager.setAttribute("data-pager", "");
+                    newPager.setAttribute("role", "tablist");
+                    newPager.classList.add(...pagerClasses.split(" "));
+
+                    slides.forEach((slide, index) => {
+                        const marker = document.createElement("button");
+                        const slideId = slide.id || `${sliderId}-item-${index + 1}`;
+                        marker.setAttribute(markerIdName, slideId);
+                        marker.classList.add(...markerClasses.split(" "));
+                        setupPagerMarker(marker, index);
+                        newPager.appendChild(marker);
+
+                        if (slide.tagName.toLowerCase() !== "img" && slide.tagName.toLowerCase() !== "picture") {
+                            slide.removeAttribute("aria-roledescription");
+                            slide.setAttribute("role", "tabpanel");
+                        }
+                    });
+
+                    if (pager) {
+                        pager.setAttribute("role", "tablist");
+                        pager.replaceChildren(...newPager.children);
+                    } else {
+                        track.after(newPager);
+                        pager = el.querySelector("[data-pager]");
+                    }
+                }
+                function setupPager() {
+                    if (!pager) return;
+                    pager.setAttribute("role", "tablist");
+                    const items = Array.from(pager.querySelectorAll("a, button"));
+                    items.forEach((marker, index) => setupPagerMarker(marker, index));
+                }
+                function setupPagerMarker(marker, index) {
+                    const markerId = marker.getAttribute("href")?.slice(1) || marker.getAttribute(markerIdName);
+                    const slideId = markerId || `${sliderId}-item-${index + 1}`;
+                    if (!markerId) {
+                        marker.setAttribute(markerIdName, slideId);
+                    }
+                    marker.setAttribute("role", "tab");
+                    marker.setAttribute("aria-controls", slideId);
+                    marker.setAttribute("aria-posinset", index + 1);
+                    marker.setAttribute("aria-setsize", slides.length);
+                    marker.setAttribute("tabindex", "-1");
+                    if (!marker.hasAttribute("aria-label")) {
+                        marker.setAttribute("aria-label", `Slide ${index + 1}`);
+                    }
+                }
+                function setupObservers() {
+                    if (inViewObserver) {
+                        inViewObserver.disconnect();
+                    }
+                    inViewObserver = new IntersectionObserver(
+                        handleInView.bind(track),
+                        { root: track, threshold: 0.8 }
+                    );
+                    slides.forEach((slide) => inViewObserver.observe(slide));
+                }
+                function setupMutationObserver() {
+                    mutationObserver = new MutationObserver(refreshSlides.bind(track));
+                    mutationObserver.observe(track, {
+                        childList: true,
+                        subtree: false
+                    });
+                }
+                function setupResizeObserver() {
+                    resizeObserver = new ResizeObserver(groupPagerMarkers.bind(el));
+                    resizeObserver.observe(el);
+                }
+                function goToSlideDir(dir = "next") {
+                    const { firstInViewSlide, lastInViewSlide } = getInViewItems();
+                    const isPrev = dir === "prev";
+                    let targetSlide = isPrev ? firstInViewSlide?.previousElementSibling : lastInViewSlide?.nextElementSibling;
+                    if (!targetSlide) return;
+                    if (targetSlide.tagName.toLowerCase() === "template") {
+                        targetSlide = isPrev ? targetSlide?.previousElementSibling : targetSlide?.nextElementSibling;
+                    }
+                    targetSlide.scrollIntoView({
+                        block: "nearest",
+                        inline: isPrev ? "end" : "start",
+                        behavior: "smooth"
+                    });
+                }
+                function pagerToSlide(event) {
+                    if (!event.target.closest("[data-pager]")) return;
+                    const marker = event.target.closest("a, button");
+                    if (!marker) return;
+                    event.preventDefault();
+                    const slideId = marker.getAttribute("href")?.slice(1) || marker.getAttribute(markerIdName);
+                    const targetSlide = track.querySelector(`#${slideId}`);
+                    targetSlide?.scrollIntoView({
+                        block: "nearest",
+                        inline: "start",
+                        behavior: "smooth"
+                    });
+                }
+                setupSlides();
+                setupNav();
+                if (useAutoPager) {
+                    createPager();
+                } else {
+                    setupPager();
+                }
+                setupObservers();
+                setupMutationObserver();
+                setupResizeObserver();
+                function eventHandler(event) {
+                    const target = event.target.closest(
+                        "[data-next], [data-prev], [data-pager]"
+                    );
+                    if (!target) return;
+                    if (event.type === "click") {
+                        if (target.hasAttribute("data-next")) {
+                            goToSlideDir("next");
+                        } else if (target.hasAttribute("data-prev")) {
+                            goToSlideDir("prev");
+                        } else if (target.closest("[data-pager]")) {
+                            pagerToSlide(event);
+                        }
+                    }
+                    if (event.type === "keydown" && target.closest("[data-pager]")) {
+                        if (event.key === "ArrowRight") {
+                            goToSlideDir("next");
+                        } else if (event.key === "ArrowLeft") {
+                            goToSlideDir("prev");
+                        }
+                    }
+                }
+                el.addEventListener("click", eventHandler);
+                el.addEventListener("keydown", eventHandler);
+                cleanup(() => {
+                    inViewObserver?.disconnect();
+                    mutationObserver?.disconnect();
+                    resizeObserver?.disconnect();
+                    el.removeEventListener("click", eventHandler);
+                    el.removeEventListener("keydown", eventHandler);
+                });
+            });
+        }
+
+        document.addEventListener("alpine:init", () => {
+            window.Alpine.plugin(alpineSnapSlider);
+        });
+    })();
+</script>
+

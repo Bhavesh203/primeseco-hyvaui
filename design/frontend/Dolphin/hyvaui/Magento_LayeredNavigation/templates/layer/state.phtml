@@ -1,0 +1,88 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\LayeredNavigation\Block\Navigation\State;
+
+/** @var State $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$filters = $block->getActiveFilters();
+$isFilterDefaultOpen = $block->getOpen() !== null ? (bool) $block->getOpen() : true;
+$isFilterStyleChips = (string) $block->getFilterStyle() === "chips";
+$filterChipStyle = 'py-2 px-2.5 rounded-md hover:bg-red-300 hover:text-red-800 focus:outline-red-300 active:bg-red-400 active:text-red-900';
+
+if (empty($filters)) {
+    return '';
+}
+?>
+
+<details class="relative filter-current group py-2"<?= $isFilterDefaultOpen ? ' !open' : '' ?>>
+    <summary
+        id="active-filtering-heading"
+        class="block-title [&::-webkit-details-marker]:hidden py-2 flex gap-3 items-center justify-between font-medium cursor-pointer outline-offset-2 text-xl md:text-2xl leading-6 md:leading-7.5"
+    >
+        <h3><?= $escaper->escapeHtml(__('Active filtering')) ?></h3>
+        <span class="text-theme-dark transition-transform transform duration-300 ease-in-out group-open:rotate-180">
+            <?= $heroiconsSolid->chevronDownHtml('', 26, 26, ["aria-hidden" => "true"]); ?>
+        </span>
+    </summary>
+    <ul
+        id="active-filtering-content"
+        class="lg:absolute lg:top-full bg-white lg:-m-2 lg:left-0 z-10 w-full lg:w-max block-content filter-content p-2 border border-solid border-[#EAEAEA] <?= $isFilterStyleChips ? 'flex flex-wrap gap-2' : 'space-y-3' ?>"
+        aria-labelledby="active-filtering-heading"
+    >
+        <?php foreach ($filters as $filter): ?>
+            <?php
+                $filterName = $filter->getName();
+                $filterLabel = $block->stripTags($filter->getLabel());
+                $filterIsBool = $filter->getValue() === "0" || $filter->getValue() === "1";
+            ?>
+            <li>
+                <a
+                    href="<?= $escaper->escapeUrl($filter->getRemoveUrl()) ?>"
+                    class="item group/active-filter flex justify-between items-center gap-2 text-sm transition-colors
+                        <?= $isFilterStyleChips ? 'bg-slate-200 text-current ' . $filterChipStyle : '' ?>"
+                    title="<?= $escaper->escapeHtmlAttr(__('Remove filter for %1: %2', $filterName, $filterLabel)) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Remove filter for %1: %2', $filterName, $filterLabel)) ?>"
+                >
+                    <span>
+                        <span class="filter-label <?= $isFilterStyleChips
+                            ? ($filterIsBool ? 'opacity-60' : 'sr-only')
+                            : 'font-normal' ?>"><?= $escaper->escapeHtml(__($filterName)) ?>:</span>
+                        <span class="filter-value <?= $isFilterStyleChips
+                            ? 'font-normal'
+                            : 'font-bold' ?>"><?= $escaper->escapeHtml($filterLabel) ?></span>
+                    </span>
+                    <?= $heroiconsSolid->xHtml('action remove opacity-50', 18, 18, ["aria-hidden" => "true"]); ?>
+                </a>
+            </li>
+        <?php endforeach; ?>
+        <?php if ($block->getLayer()->getState()->getFilters()): ?>
+            <li>
+                <a
+                    href="<?= $escaper->escapeUrl($block->getClearUrl()) ?>"
+                    class="block-actions filter-actions text-sm text-blue-700 transition-colors
+                        <?= $isFilterStyleChips
+                            ? 'flex focus:text-red-800 ' . $filterChipStyle
+                            : 'block hover:text-primary-darker hover:underline mt-4' ?>"
+                    title="<?= $escaper->escapeHtmlAttr(__('Remove all filters')) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Remove all filters')) ?>"
+                ><?= $escaper->escapeHtml(__('Clear All')) ?></a>
+            </li>
+        <?php endif; ?>
+    </ul>
+</details>

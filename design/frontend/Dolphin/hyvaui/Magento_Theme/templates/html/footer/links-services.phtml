@@ -1,0 +1,51 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+?>
+
+<nav aria-label="<?= $escaper->escapeUrl($escaper->escapeHtmlAttr('Customer Services')) ?>">
+    <ul>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Shipment of your order')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Payment options')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Returns and replacements')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Warranty and repairs')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Get in touch')) ?></a>
+        </li>
+    </ul>
+</nav>

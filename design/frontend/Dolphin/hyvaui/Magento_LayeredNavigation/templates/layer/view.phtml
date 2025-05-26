@@ -1,0 +1,248 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\LayeredNavigation\Block\Navigation;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Navigation $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$activeFilterStyle = $block->getActiveStyle();
+$activeIsOpen = $block->getActiveOpen();
+$showFilterInput = $block->getShowInput() !== null ? (bool) $block->getShowInput() : true;
+$showFilterPriceSlider = $block->getShowPriceSlider() !== null ? (bool) $block->getShowPriceSlider() : true;
+$showFilterPriceOptions = $block->getShowPriceOptions() !== null ? (bool) $block->getShowPriceOptions() : false;
+$openFiltersByIds = (array) $block->getOpenByIds() ?: [];
+$maxPriceFallbackValue = (int) $block->getMaxPriceFallbackValue() ?: 1000;
+?>
+
+<?php if ($block->canShowBlock()): ?>
+    <div class="flex justify-between w-full">
+        <div
+            class="flex items-center gap-4 w-fit text-2xl leading-7.5 max-lg:w-full max-lg:flex-col"
+            role="region"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Product filters')) ?>"
+            x-data="initLayeredNavigation"
+            x-defer="intersect"
+            x-bind="eventListeners"
+        >
+            <h2 id="filters-heading" class="block-title max-lg:w-full">
+                <button
+                    type="button"
+                    @click="toggle"
+                    class="lg:hidden btn btn-secondary gap-2 p-2 justify-between w-full text-start text-lg font-medium
+                        lg:p-0 lg:border-0 lg:!shadow-none lg:!bg-transparent lg:!text-current lg:text-2xl"
+                    aria-controls="filters-content"
+                    disabled
+                    :aria-expanded="isOpen"
+                    :disabled="notMobile"
+                >
+                    <span><?= $escaper->escapeHtml(__('Filter By')) ?></span>
+                    <?= $heroicons->adjustmentsHtml('lg:!hidden', 24, 24, [
+                        "x-ref" => "LayeredNavigationMobileToggleIcon",
+                        "aria-hidden" => "true"
+                    ]); ?>
+                </button>
+                <span class="block max-lg:hidden text-black font-semibold">Filter :</span>
+            </h2>
+            <a href="#product-list" class="block sr-only focus:not-sr-only">
+                <span class="block my-2 py-2.5 px-4 bg-blue-600 text-white text-center rounded-sm"><?= $escaper->escapeHtml(__('Skip to product list')) ?></span>
+            </a>
+            <div
+                id="filters-content"
+                class="relative block-content filter-content lg:!flex items-center gap-3 rounded w-fit text-xl md:text-2xl leading-6 md:leading-7.5 max-lg:w-full max-lg:border max-lg:border-theme-color max-lg:p-3"            
+                x-show="isOpen"
+            >
+                <?= $block->getChildBlock('state')->setOpen($activeIsOpen)->setFilterStyle($activeFilterStyle)->toHtml(); ?>
+                <?php foreach ($block->getFilters() as $filter): ?>
+                    <?php $isFilterDefaultOpen = in_array($filter->getRequestVar(), $openFiltersByIds); ?>
+                    <?php if ($filter->getItemsCount() || ($filter->getRequestVar() === 'price' && $showFilterPriceSlider)): ?>
+                        <div
+                        x-data="{ open: false }"
+                        @click.outside="open=false"
+                            id="<?= $escaper->escapeHtmlAttr($filter->getRequestVar()) ?>"
+                            class="relative filter-option group py-2 max-lg:border-b max-lg:border-theme-color last:border-b-0"                            
+                        >
+                        <button
+                            type="button"
+                            @click="open = !open"
+                            class="block-title [&::-webkit-details-marker]:hidden flex gap-3 items-center justify-between w-full text-start"
+                            aria-label="<?= $escaper->escapeHtml(__('%1 filter', $filter->getName())) ?>"
+                        >
+                            <h3><?= $escaper->escapeHtml(__($filter->getName())) ?></h3>
+                            <span class="text-theme-dark transition-transform transform duration-300 ease-in-out" :class="{ 'rotate-180': open }">
+                                <?= $heroiconsSolid->chevronDownHtml('', 24, 24, ["aria-hidden" => "true"]); ?>
+                            </span>
+                        </button>
+
+                            <div
+                                x-show="open"                        
+                                class="filter-options-content lg:absolute lg:left-0 lg:top-full w-full lg:w-max border border-solid border-[#EAEAEA] p-5 z-10 bg-white max-lg:mt-2"
+                            >
+                                <?php if ($filter->getRequestVar() === 'price' && $showFilterPriceSlider && $block->getChildBlock('renderer-price')): ?>
+                                    <?= /* @noEscape */ $block->getChildBlock('renderer-price')
+                                        ->setFilterTitle($filter->getName())
+                                        ->setFilterId($filter->getRequestVar())
+                                        ->render($filter); ?>
+                                <?php else: ?>
+                                    <?= /* @noEscape */ $block->getChildBlock('renderer')
+                                        ->setFilterTitle($filter->getName())
+                                        ->setFilterId($filter->getRequestVar())
+                                        ->setShowInput($showFilterInput)
+                                        ->render($filter); ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <script>
+        function initLayeredNavigation() {
+            return {
+                isMobile: false,
+                isOpen: false,
+                init() {
+                    this.checkIsMobileResolution();
+                },
+                notMobile() {
+                    return !this.isMobile;
+                },
+                toggle() {
+                    this.isOpen = !this.isOpen;
+                },
+                checkIsMobileResolution() {
+                    const mobileElement = this.$refs.LayeredNavigationMobileToggleIcon;
+                    this.isMobile = getComputedStyle(mobileElement).display !== "none";
+                },
+                eventListeners: {
+                    ['@resize.window.debounce']() {
+                        this.checkIsMobileResolution();
+                    },
+                    ['@visibilitychange.window.debounce']() {
+                        this.checkIsMobileResolution();
+                    },
+                },
+            }
+        }
+
+        function filterPriceRange() {
+            const defaultMaxValue = <?= /* @noEscape */ $maxPriceFallbackValue ?>;
+            const getUrlSearchParamPrice = ({ url, value = 'max', getPrevious = false } = {}) => {
+                const searchParams = new URL(url || document.location).searchParams;
+                let paramPrice = searchParams.get("price");
+                if (!paramPrice) return;
+
+                if (paramPrice.includes(',')) {
+                    paramPrice = paramPrice.split(',');
+                    paramPrice = getPrevious ? paramPrice.pop() : paramPrice.shift();
+                };
+
+                if (value === 'min') {
+                    paramPrice = paramPrice.split('-')[0];
+                }
+
+                if (value === 'max') {
+                    paramPrice = paramPrice.split('-')[1];
+                }
+
+                return paramPrice;
+            }
+
+            return {
+                minprice: getUrlSearchParamPrice({ value: 'min' }) || 0,
+                maxprice: getUrlSearchParamPrice({ value: 'max' }) || defaultMaxValue,
+                initPriceFilter: '',
+                priceFilter: '',
+                min: 0,
+                max: defaultMaxValue,
+                step: 10,
+                init() {
+                    this.setInitialMaxPrice();
+                    this.initPriceFilter = this.getPriceFilter();
+                    this.priceFilter = this.getPriceFilter();
+
+                    this.$watch('minprice', () => {
+                        this.priceFilter = this.getPriceFilter();
+                    });
+
+                    this.$watch('maxprice', () => {
+                        this.priceFilter = this.getPriceFilter();
+                    });
+                },
+                setMinPrice(event) {
+                    const value = Number(event.target.value);
+                    if (value < this.maxprice) {
+                        this.minprice = value;
+                    } else {
+                        event.target.value = this.minprice;
+                    }
+                },
+                setMaxPrice(event) {
+                    const value = Number(event.target.value);
+                    if (value > this.minprice) {
+                        this.maxprice = value;
+                    } else {
+                        event.target.value = this.maxprice;
+                    }
+                },
+                setInitialMaxPrice() {
+                    const params = new URL(document.location).searchParams;
+                    if (params.has('price')) {
+                        this.max = getUrlSearchParamPrice({ getPrevious: true }) || defaultMaxValue;
+                    } else {
+                        const initUrl = this.$root.dataset.rangeInitValue;
+                        if (!initUrl) return;
+
+                        const getMaxPriceValue = getUrlSearchParamPrice({ url: initUrl });
+                        if (!getMaxPriceValue) return;
+
+                        this.max = getMaxPriceValue;
+                        this.maxprice = getMaxPriceValue;
+                    }
+                },
+                getPriceFilter() {
+                    return `${this.minprice}-${this.maxprice}`;
+                },
+                getFilterUrl() {
+                    let newUrl = new URL(document.location);
+                    let params = newUrl.searchParams;
+                    params.set("price", `${this.priceFilter},${this.min}-${this.max}`);
+                    newUrl.searchParams = params;
+                    return newUrl;
+                },
+                getCssVarValue() {
+                    return `--tw-range-fill-min: ${(this.minprice / this.max) * 100}; --tw-range-fill-max: ${(this.maxprice / this.max) * 100}`;
+                }
+            }
+        }
+
+        window.addEventListener('alpine:init', () => {
+            Alpine.data('initLayeredNavigation', initLayeredNavigation);
+            Alpine.data('filterPriceRange', filterPriceRange);
+        }, { once: true });
+    </script>
+    
+<?php endif; ?>

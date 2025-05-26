@@ -1,0 +1,68 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\Store;
+use Hyva\Theme\ViewModel\StoreSwitcher;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Store\ViewModel\SwitcherUrlProvider;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var SwitcherUrlProvider $switcherUrlProvider */
+$switcherUrlProvider = $viewModels->require(SwitcherUrlProvider::class);
+
+/** @var Store $storeViewModel */
+$storeViewModel = $viewModels->require(Store::class);
+
+/** @var StoreSwitcher $storeSwitcherViewModel */
+$storeSwitcherViewModel = $viewModels->require(StoreSwitcher::class);
+$currentStore = $storeSwitcherViewModel->getStore();
+
+$itemClasses = "flex items-center gap-1 py-3 px-6 border-b border-slate-100 hover:text-slate-700";
+$itemIndent = 'ms-7';
+$iconSize = 20;
+
+if (count($storeSwitcherViewModel->getStores()) <= 1) {
+    return '';
+}
+?>
+
+<details open name="menu-settings" class="group">
+    <summary class="<?= $escaper->escapeHtmlAttr($itemClasses) ?> select-none cursor-pointer [&::-webkit-details-marker]:hidden">
+        <?= $heroiconsSolid->globeAltHtml('', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+        <span class="grow flex flex-wrap justify-between items-center gap-x-2">
+            <span><?= $escaper->escapeHtml(__('Language')) ?></span>
+            <span><?= $escaper->escapeHtml($currentStore->getName()) ?></span>
+        </span>
+        <?= $heroiconsSolid->chevronDownHtml('transition group-open:rotate-180', $iconSize, $iconSize, ['aria-hidden' => 'true']) ?>
+    </summary>
+
+    <nav aria-label="<?= $escaper->escapeHtml(__('Choose your language')) ?>">
+        <?php foreach ($storeSwitcherViewModel->getStores() as $lang): ?>
+            <?php if ($lang->getId() != $storeViewModel->getStoreId()): ?>
+                <a
+                    href="<?= $escaper->escapeUrl($switcherUrlProvider->getTargetStoreRedirectUrl($lang)) ?>"
+                    class="<?= $escaper->escapeHtmlAttr($itemClasses) ?> <?= $escaper->escapeHtmlAttr($itemIndent) ?>"
+                ><?= $escaper->escapeHtml($lang->getName()) ?></a>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </nav>
+</details>

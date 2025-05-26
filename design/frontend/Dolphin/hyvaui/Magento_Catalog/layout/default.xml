@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceBlock name="header.customer.logged.in.links">
+            <block name="catalog.compare.link.logged.in" template="Magento_Catalog::product/compare/link.phtml">
+                <arguments>
+                    <argument name="sort_order" xsi:type="number">20</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+
+        <referenceBlock name="header.customer.logged.out.links">
+            <block name="catalog.compare.link.logged.out" template="Magento_Catalog::product/compare/link.phtml">
+                <arguments>
+                    <argument name="sort_order" xsi:type="number">0</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

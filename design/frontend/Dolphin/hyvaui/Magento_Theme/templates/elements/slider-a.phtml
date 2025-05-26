@@ -1,0 +1,133 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$sliderShowArrows = $block->getShowArrows() !== null ? $block->getShowArrows() : "end";
+$sliderShowPager = $block->getShowPager() !== null ? (bool) $block->getShowPager() : true;
+$loadFirstEager = (bool) $block->getLoadFirstEager();
+
+$pagerClasses = "hidden sm:flex gap-4 justify-center items-center mt-7 absolute w-full bottom-8";
+$markerClasses = "w-4 h-4 rounded-full shadow-md cursor-pointer bg-theme-light hover:bg-theme-color transition aria-[current=true]:bg-theme-color aria-[current=true]:w-5 aria-[current=true]:h-5";
+
+// Get media base URL
+$mediaUrl = $block->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'banner/';
+
+$items = [
+    [
+        'image_file' => 'banner1.png',
+        'image_alt' => __('New Arrivals'),
+        'banner_title' => __('Stylish, Sustainable, and Ready for Every Occasion'),
+        'banner_disc' => __('Elevate your event with 100% biodegradable palm leaf dinnerware – durable, compostable, and perfect for those who value the planet and quality'),
+        'url' => $block->getUrl('home'),
+    ],
+    [
+        'image_file' => 'banner2.png',
+        'image_alt' => __('Summer Collection'),
+        'banner_title' => __('Stylish, Sustainable, and Ready for Every Occasion'),
+        'banner_disc' => __('Elevate your event with 100% biodegradable palm leaf dinnerware – durable, compostable, and perfect for those who value the planet and quality'),
+        'url' => $block->getUrl('home'),
+    ],
+    [
+        'image_file' => 'banner3.png',
+        'banner_title' => __('Stylish, Sustainable, and Ready for Every Occasion'),
+        'banner_disc' => __('Elevate your event with 100% biodegradable palm leaf dinnerware – durable, compostable, and perfect for those who value the planet and quality'),
+        'url' => $block->getUrl('home'),
+    ],
+];
+?>
+
+<section
+    class="home_banner_section relative"
+    aria-label="<?= $escaper->escapeHtml(__('Latest items')) ?>"
+    x-data
+    <?php if ($sliderShowPager): ?>
+        x-snap-slider.auto-pager
+        data-pager-class="<?= $escaper->escapeHtmlAttr($pagerClasses) ?>"
+        data-marker-class="<?= $escaper->escapeHtmlAttr($markerClasses) ?>"
+    <?php else: ?>
+        x-snap-slider
+    <?php endif; ?>
+>
+    <?php if ($sliderShowArrows): ?>
+        <nav
+            class="z-10 flex gap-2 justify-between absolute bottom-4 sm:static
+                <?= $sliderShowArrows === "end" ? "right-4" : ($sliderShowArrows === "start" ? "left-4" : "inset-x-4") ?>"
+            aria-label="<?= $escaper->escapeHtml(__('Latest items controls')) ?>"
+        >
+            <button
+                type="button"
+                data-prev
+                class="sm:z-10 sm:absolute sm:top-1/2 sm:-translate-y-1/2 sm:left-4
+                    shrink-0 p-2.5 rounded-full transition bg-white text-primary shadow
+                    disabled:opacity-30 hover:shadow-primary/30 focus:shadow-primary/30"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Go to Previous Slide')) ?>"
+            >
+                <?= /** @noEscape */ $heroicons->arrowLeftHtml() ?>
+            </button>
+            <button
+                type="button"
+                data-next
+                class="sm:z-10 sm:absolute sm:top-1/2 sm:-translate-y-1/2 sm:right-4
+                    shrink-0 p-2.5 rounded-full transition bg-white text-primary shadow
+                    disabled:opacity-30 hover:shadow-primary/30 focus:shadow-primary/30"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Go to Next Slide')) ?>"
+            >
+                <?= /** @noEscape */ $heroicons->arrowRightHtml() ?>
+            </button>
+        </nav>
+    <?php endif; ?>
+    <div data-track class="snap relative grid grid-flow-col auto-cols-[100%] overflow-x-auto overflow-y-hidden h-[600px]">
+        <?php foreach ($items as $index => $item): ?>
+            <?php
+                $itemTextLarge = $item['banner_disc'] ?? '';
+                $itemTextSmall = $item['banner_title'] ?? '';
+                $imageSrc = $mediaUrl . $item['image_file'];
+            ?>
+            
+            <figure class="home_banner relative h-[600px]">
+                <img
+                    src="<?= $escaper->escapeUrl($block->getViewFileUrl('Magento_Theme::images/' . $item['image_file'])) ?>"
+                    alt="<?= $escaper->escapeHtmlAttr($item['image_alt'] ?? $item['banner_title'] ?? '') ?>"                                        
+                    class="object-cover h-full w-full"
+                    loading="<?= $escaper->escapeHtmlAttr(($loadFirstEager && $index === 0 ? 'eager' : 'lazy')) ?>"
+                >
+                <?php if ($itemTextSmall || $itemTextLarge): ?>
+                    <div class="container absolute left-2/4 top-2/4 -translate-x-2/4 -translate-y-2/4">            
+                        <figcaption class="p-5 text-center md:text-left max-w-full lg:max-w-[816px] w-full">
+                            <?php if ($itemTextSmall): ?>
+                                <p class="text-theme-dark text-[32px] leading-1 md:text-[40px] lg:text-[52px] sm:mb-3 last:mb-0 font-semibold drop-shadow-md">
+                                    <?= $escaper->escapeHtml($itemTextSmall) ?>
+                                </p>
+                            <?php endif; ?>
+                            <?php if ($itemTextLarge): ?>
+                                <p class="text-xl lg:text-[25px] text-center md:text-left font-semibold drop-shadow-md mb-4 md:mb-8">
+                                    <?= $escaper->escapeHtml($itemTextLarge) ?>
+                                </p>
+                            <?php endif; ?>
+                            <?php if (!empty($item['url'])): ?>
+                                <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                                class="btn btn-primary leading-6 w-fit max-md:m-auto"
+                                >
+                                    <?= $escaper->escapeHtml(__('Shop Now')) ?>
+                                </a>
+                            <?php endif; ?>
+                        </figcaption>
+                    </div>
+
+                <?php endif; ?>
+            </figure>
+        <?php endforeach; ?>
+    </div>
+</section>

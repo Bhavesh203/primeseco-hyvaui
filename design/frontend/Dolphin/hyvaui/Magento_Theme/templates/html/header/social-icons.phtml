@@ -1,0 +1,59 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+$socials = [
+    [
+        'url' => '#link',
+        'label' => 'Facebook',
+        'icon' => 'social-facebook'
+    ],
+    [
+        'url' => '#link',
+        'label' => 'Instagram',
+        'icon' => 'social-instagram'
+    ],
+    [
+        'url' => '#link',
+        'label' => 'Pinterest',
+        'icon' => 'social-pinterest'
+    ],
+    [
+        'url' => '#link',
+        'label' => 'Twitter',
+        'icon' => 'social-twitter'
+    ],
+];
+
+?>
+
+<nav aria-label="Social" class="flex flex-wrap justify-center gap-2 pt-6 pb-4 px-6">
+    <?php foreach ($socials as $item): ?>
+        <a
+            href="<?= $escaper->escapeUrl($item['url']) ?>"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-theme-dark text-white rounded-full hover:bg-slate-500 transition-colors"
+        >
+            <?= $hyvaIcons->renderHtml($item['icon'], '', 40, 40, ['title' => __('Follow us on %1', $item['label'])]) ?>
+        </a>
+    <?php endforeach; ?>
+</nav>

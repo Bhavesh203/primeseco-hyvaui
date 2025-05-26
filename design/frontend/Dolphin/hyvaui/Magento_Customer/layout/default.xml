@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+-->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceBlock name="footer-content">
+            <block name="footer_column_4" template="Magento_Theme::html/footer/collapse.phtml" after="footer_column_3">
+                <arguments>
+                    <argument name="title" xsi:type="string" translate="true">My Account</argument>
+                </arguments>
+                <block
+                    name="footer.customer.menu"
+                    class="Magento\Customer\Block\Account\Customer"
+                    template="Magento_Customer::footer/customer-menu.phtml"
+                >
+                    <block name="footer.customer.logged.in.links" class="Hyva\Theme\Block\SortableItems">
+                        <block
+                            name="customer.footer.dashboard.link"
+                            class="Hyva\Theme\Block\SortableItemInterface"
+                            template="Magento_Customer::footer/link/link.phtml"
+                        >
+                            <arguments>
+                                <argument name="label" xsi:type="string" translate="true">My Account</argument>
+                                <argument name="path" xsi:type="string">customer/account</argument>
+                                <argument name="sort_order" xsi:type="number">10</argument>
+                            </arguments>
+                        </block>
+                        <block
+                            name="customer.footer.sign.out.link"
+                            class="Hyva\Theme\Block\SortableItemInterface"
+                            template="Magento_Customer::footer/link/link.phtml"
+                        >
+                            <arguments>
+                                <argument name="label" xsi:type="string" translate="true">Sign Out</argument>
+                                <argument name="path" xsi:type="string">customer/account/logout</argument>
+                                <argument name="sort_order" xsi:type="number">2000</argument>
+                            </arguments>
+                        </block>
+                    </block>
+                    <block name="footer.customer.logged.out.links" class="Hyva\Theme\Block\SortableItems">
+                        <block
+                            name="customer.footer.sign.in.link"
+                            class="Hyva\Theme\Block\SortableItemInterface"
+                            template="Magento_Customer::footer/link/sign-in.phtml"
+                        >
+                            <arguments>
+                                <argument name="sort_order" xsi:type="number">10</argument>
+                            </arguments>
+                        </block>
+                        <block
+                            name="customer.footer.register.link"
+                            class="Hyva\Theme\Block\SortableItemInterface"
+                            template="Magento_Customer::footer/link/register.phtml"
+                        >
+                            <arguments>
+                                <argument name="sort_order" xsi:type="number">20</argument>
+                            </arguments>
+                        </block>
+                    </block>
+                </block>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,34 @@
+.product-item {
+    .price-container {
+        @apply block;
+
+        .price {
+            @apply font-semibold;
+        }
+
+        .price-label {
+            @apply text-sm;
+        }
+
+        [data-price-type="finalPrice"] {
+            @apply text-lg lg:text-[22px] leading-6 lg:leading-7;
+        }
+
+    }
+
+    .special-price .price-container .price-label {
+        @apply sr-only;
+    }
+
+    .old-price .price-container {
+        @apply text-gray-500;
+
+        .price {
+            @apply font-semibold text-dove-gray;
+        }
+    }
+}
+
+.custom-sidebar-toolbar {
+    @apply flex justify-between w-full;
+}

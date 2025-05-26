@@ -1,0 +1,65 @@
+body {
+    @apply bg-container;
+}
+.columns{
+    @apply px-3;
+}
+
+#cart-drawer {
+    @apply text-black;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.input {
+    @apply w-auto rounded mr-2 border text-base py-2 px-4;
+
+    @screen md {
+        @apply mr-4;
+    }
+
+    @screen lg {
+        @apply mr-0;
+    }
+
+    @screen xl {
+        @apply mr-4;
+    }
+
+    &-light {
+        @apply bg-white border-gray-400;
+
+        &:focus {
+            @apply outline-none border-primary;
+        }
+    }
+}
+
+.card {
+    @apply p-5 rounded-sm bg-white border border-gallery shadow-[2px_4px_20px_0px_#0000000D];
+}
+
+.card-interactive {
+    &:hover {
+        @apply bg-container;
+    }
+}
+
+
+.bg-primes{
+    background-color: #85A33F;
+}

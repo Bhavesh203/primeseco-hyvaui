@@ -1,0 +1,99 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\ReCaptcha;
+use Magento\Framework\Escaper;
+use Magento\Newsletter\Block\Subscribe;
+
+/** @var Subscribe $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+/** @var ReCaptcha $recaptcha */
+/** @var HeroiconsOutline $heroicons */
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+// Do not replace this with $viewModels->require(ReCaptcha::class); that might break the dependency
+// on the Magento_ReCaptchaNewsletter module
+$recaptcha = $block->getData('viewModelRecaptcha');
+?>
+<div class="bg-zinc-50 py-8">
+    <form
+        id="newsletter-validate-detail"
+        class="form subscribe container max-w-3xl"
+        action="<?= $escaper->escapeUrl($block->getFormActionUrl()) ?>"
+        method="post"
+        x-data="initNewsletterForm"
+        @submit.prevent="submitForm"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Subscribe to Newsletter')) ?>"
+    >
+        <div class="text-center text-slate-600 space-y-1 mb-6">
+            <p class="text-lg text-slate-700">
+                <strong class="font-medium"><?= $escaper->escapeHtml(__('Be the first to know')) ?></strong>
+            </p>
+            <p><?= $escaper->escapeHtml(__('Subscribe for our best offers.')) ?></p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+            <label class="flex grow m-0">
+                <span class="sr-only"><?= $escaper->escapeHtml(__('Email Address')) ?></span>
+                <input
+                    type="email"
+                    id="newsletter-subscribe"
+                    name="email"
+                    class="form-input w-full py-2.5 px-5"
+                    required
+                    placeholder="<?= $escaper->escapeHtmlAttr(__('Enter your email address')) ?>"
+                >
+                <?= $block->getBlockHtml('formkey') ?>
+                <?= $recaptcha ? $recaptcha->getInputHtml(ReCaptcha::RECAPTCHA_FORM_ID_NEWSLETTER) : '' ?>
+            </label>
+            <button class="shrink-0 btn btn-primary">
+                <?= $escaper->escapeHtml(__('Subscribe')) ?>
+            </button>
+        </div>
+        <template x-if="displayErrorMessage">
+            <p class="flex items-center text-red mt-2">
+                <?= $heroicons->exclamationCircleHtml('inline-block mr-3'); ?>
+                <template x-for="errorMessage in errorMessages">
+                    <span x-html="errorMessage"></span>
+                </template>
+            </p>
+        </template>
+    </form>
+    <div class="w-full">
+        <?= $recaptcha ? $recaptcha->getLegalNoticeHtml(ReCaptcha::RECAPTCHA_FORM_ID_NEWSLETTER) : '' ?>
+    </div>
+    <script>
+        function initNewsletterForm() {
+            return {
+                errors: 0,
+                hasCaptchaToken: 0,
+                displayErrorMessage: false,
+                errorMessages: [],
+                setErrorMessages(messages) {
+                    this.errorMessages = [messages]
+                    this.displayErrorMessage = this.errorMessages.length
+                },
+                submitForm() {
+                    // Do not rename $form, the variable is expected to be declared in the recaptcha output
+                    const $form = document.querySelector('#newsletter-validate-detail');
+                    <?= $recaptcha ? $recaptcha->getValidationJsHtml(ReCaptcha::RECAPTCHA_FORM_ID_NEWSLETTER) : '' ?>
+
+                    if (this.errors === 0) {
+                        $form.submit();
+                    }
+                }
+            }
+        }
+        window.addEventListener('alpine:init', () => Alpine.data('initNewsletterForm', initNewsletterForm), { once: true })
+    </script>    
+</div>

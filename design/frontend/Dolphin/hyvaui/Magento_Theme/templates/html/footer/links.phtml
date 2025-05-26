@@ -1,0 +1,57 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+?>
+
+<nav aria-label="<?= $escaper->escapeUrl($escaper->escapeHtmlAttr('Shop')) ?>">
+    <ul>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('What\'s new')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Women')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Men')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Gear')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Training')) ?></a>
+        </li>
+        <li>
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block py-1.5 hover:underline"
+            ><?= $escaper->escapeHtml(__('Sale')) ?></a>
+        </li>
+    </ul>
+</nav>

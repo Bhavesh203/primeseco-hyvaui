@@ -1,0 +1,143 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Catalog\Block\Product\View\Details;
+use Magento\Framework\Escaper;
+
+/** @var Details $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$divider = $block->getDivider() !== null ? $block->getDivider() : true;
+$sectionIsOpen = '';
+?>
+
+<div x-data="initProductSections" class="py-3 px-6 bg-gray-100">
+    <nav
+        class="hidden lg:flex pb-6 snap overflow-x-auto overscroll-x-contain"
+        aria-label="<?= $escaper->escapeHtml(__('Navigate to Product Section')) ?>"
+        x-show="items.length"
+    >
+        <template x-for="tab in items">
+            <button
+                type="button"
+                class="relative flex-auto pt-1 pb-3 px-3 border-b whitespace-nowrap font-bold
+                    aria-expanded:text-blue-700 aria-expanded:border-current aria-expanded:after:border-inherit
+                    after:absolute after:inset-x-0 after:bottom-0 after:border-b-2 after:border-transparent"
+                :aria-expanded="sectionTabIsOpen"
+                :aria-controls="tab.id"
+                @click="openSectionTab"
+                x-text="getTabLabel"
+            ></button>
+        </template>
+    </nav>
+
+    <div
+        x-ref="accordion"
+        <?php if ($divider): ?>
+        class="divide-y lg:divide-y-0"
+        <?php endif; ?>
+        style="min-height: 500px"
+    >
+        <?php
+            $productSectionIndex = 0;
+            foreach ($block->getGroupSortedChildNames('detailed_info', '') as $sectionName):
+        ?>
+            <?php
+                $sectionBlock = $block->getLayout()->getBlock($sectionName);
+                $sectionHtml = (string) $sectionBlock->toHtml();
+                $sectionTitle = $sectionBlock->getTitle() ?: $sectionName;
+                $sectionId = str_replace('.', '-', $sectionBlock->getNameInLayout());
+                if (empty(trim($sectionHtml))) {
+                    continue;
+                }
+
+                if ($productSectionIndex === 0) {
+                    $sectionIsOpen = $sectionId;
+                }
+            ?>
+            <details
+                id="<?= $escaper->escapeHtmlAttr($sectionId) ?>"
+                data-name="<?= $escaper->escapeHtml($sectionTitle) ?>"
+                class="group scroll-mt-8 lg:scroll-mt-24"
+                :open="sectionItemIsOpen"
+            >
+                <summary
+                    @click.prevent="openSectionItem"
+                    class="flex [&::-webkit-details-marker]:hidden lg:hidden w-full items-center justify-between py-3 text-lg font-bold group-open:text-blue-700"
+
+                >
+                    <span><?= $escaper->escapeHtml($sectionTitle) ?></span>
+                    <span class="transition-transform group-open:rotate-180">
+                        <?= $heroiconsSolid->chevronDownHtml('', 20, 20, ["aria-hidden" => true]); ?>
+                    </span>
+                </summary>
+                <div data-id="<?= $escaper->escapeHtmlAttr($sectionId) ?>" x-show="sectionItemIsOpen" x-collapse>
+                    <div class="pb-3">
+                        <?= /** @noEscape  */ $sectionHtml ?>
+                    </div>
+                </div>
+            </details>
+        <?php
+            $productSectionIndex++;
+            endforeach;
+        ?>
+    </div>
+    <script>
+        function initProductSections() {
+            return {
+                items: [],
+                currentOpen: '<?= /** @noEscape */ $sectionIsOpen ?>',
+                init() {
+                    this.$refs.accordion.style.minHeight = null;
+                    this.items = [...this.$refs.accordion.children];
+                },
+                openSectionTab() {
+                    this.openSectionItem(this.tab.id);
+                },
+                openSectionItem(id) {
+                    this.currentOpen = id || this.id || '<?= /** @noEscape */ $sectionIsOpen ?>';
+
+                    this.$nextTick(() => {
+                        document.getElementById(this.currentOpen).scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                            inline: "nearest"
+                        });
+                    });
+                },
+                sectionTabIsOpen() {
+                    return this.currentOpen === this.tab.id;
+                },
+                sectionItemIsOpen() {
+                    const id = this.$el.id || this.$el.dataset.id;
+                    return this.currentOpen === id;
+                },
+                getTabLabel() {
+                    return this.tab.dataset.name;
+                }
+            }
+        }
+        window.addEventListener('alpine:init', () => Alpine.data('initProductSections', initProductSections), { once: true });
+    </script>
+    
+    <?php // To ensure the summary is visible when JavaScript is disabled.  ?>
+    <noscript>
+        <style>details[data-name] summary { display: flex }</style>
+    </noscript>
+</div>
+

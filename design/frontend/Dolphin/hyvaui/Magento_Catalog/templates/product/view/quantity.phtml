@@ -1,0 +1,123 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductStockItem;
+use Magento\Catalog\Block\Product\View;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+
+// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
+
+/** @var View $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Product $product */
+$product = $block->getProduct();
+
+/** @var ProductStockItem $stockItemViewModel */
+$stockItemViewModel = $viewModels->require(ProductStockItem::class);
+$minSalesQty = $stockItemViewModel->getMinSaleQty($product);
+$maxSalesQty = $stockItemViewModel->getMaxSaleQty($product);
+$defaultQty = $block->getProductDefaultQty() * 1;
+
+$step = $stockItemViewModel->getQtyIncrements($product)
+    ? $stockItemViewModel->getQtyIncrements($product)
+    : null;
+
+/**
+ * sets minimum and maximum values taking into account the values set in the admin,
+ * but taking into account the value of Qty Increments
+ */
+if ($step) {
+    $minSalesQty = ceil($minSalesQty / $step) * $step;
+    $maxSalesQty = floor($maxSalesQty / $step) * $step;
+    $defaultQty = ceil($defaultQty / $step) * $step;
+}
+
+$maxSalesQtyLength = ($maxSalesQty ? strlen((string) $maxSalesQty) : 4)
+    + (/* add one if decimal for separator */ (int) $stockItemViewModel->isQtyDecimal($product));
+
+
+?>
+<?php if ($block->shouldRenderQuantity()): ?>
+    <script>
+        function initQtyField() {
+
+            function findPathParam(key) {
+                // get all path pairs after BASE_URL/front_name/action_path/action
+                const baseUrl = (BASE_URL.substring(0, 2) === '//' ? 'http:' : '') + BASE_URL;
+                const baseUrlParts = (new URL(baseUrl)).pathname.replace(/\/$/, '').split('/');
+                const pathParts = window.location.pathname.split('/').slice(baseUrlParts.length + 3);
+                for (let i = 0; i < pathParts.length; i += 2) {
+                    if (pathParts[i] === key && pathParts.length > i) {
+                        return pathParts[i + 1];
+                    }
+                }
+            }
+
+            return {
+                qty: <?= /** @noEscape */ $defaultQty ?>,
+                itemId: (new URLSearchParams(window.location.search)).get('id') || findPathParam('id'),
+                productId: '<?= (int)$product->getId() ?>',
+                <?php /* populate the qty when editing a product from the cart */ ?>
+                onGetCartData: function onGetCartData(data, $dispatch) {
+                    const cart = data && data.data && data.data.cart;
+                    if (this.itemId && cart && cart.items) {
+                        const cartItem = cart.items.find((item) => {
+                            return item.item_id === this.itemId && item.product_id === this.productId;
+                        });
+                        if (cartItem && cartItem.qty) {
+                            this.qty = cartItem.qty;
+                            $dispatch('update-qty-' + this.productId, this.qty);
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+    <div x-data="initQtyField()" x-init="$dispatch('update-qty-<?= (int)$product->getId() ?>', qty)" class="mb-5">
+    <label for="qty[<?= (int)$product->getId() ?>]" class="block text-black font-semibold text-lg leading-6 mb-2">
+        <?= $escaper->escapeHtml(__('Quantity')) ?>
+    </label>
+
+    <div class="flex items-center border border-gray-300 rounded-md overflow-hidden max-w-[170px] w-full h-12 lg:h-14 p-2 lg-p-4">
+        <!-- Minus Button -->
+        <button type="button"
+                class="px-3 py-2 text-2xl font-bold text-gray-500 hover:text-black focus:outline-none"
+                @click="if (qty > <?= $minSalesQty ?>) qty = qty - <?= $step ?: 1 ?>; $dispatch('update-qty-<?= (int)$product->getId() ?>', qty)">
+            &minus;
+        </button>
+
+        <!-- Quantity Input -->
+        <input name="qty"
+               id="qty[<?= (int)$product->getId() ?>]"
+               form="product_addtocart_form"
+               type="number"
+               x-model.number="qty"
+               :value="qty"
+               @input="$dispatch('update-qty-<?= (int)$product->getId() ?>', qty)"
+               min="<?= $minSalesQty ?>"
+               <?php if ($maxSalesQty): ?>max="<?= $maxSalesQty ?>"<?php endif; ?>
+               <?php if ($step): ?>step="<?= $step ?>"<?php endif; ?>
+               class="flex-1 w-12 text-center border-0 focus:ring-0 focus:outline-none text-black"
+        />
+
+        <!-- Plus Button -->
+        <button type="button"
+                class="px-3 py-2 text-2xl font-bold text-gray-500 hover:text-black focus:outline-none"
+                @click="if (!<?= $maxSalesQty ?> || qty < <?= $maxSalesQty ?>) qty = qty + <?= $step ?: 1 ?>; $dispatch('update-qty-<?= (int)$product->getId() ?>', qty)">
+            +
+        </button>
+    </div>
+</div>
+
+<?php endif; ?>

@@ -1,0 +1,117 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var ViewModelRegistry $viewModels */
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$showTitle = $block->getShowTitle() !== null ? $block->getShowTitle() : true;
+$defaultWidth = 270;
+$defaultHeight = 95;
+
+$items = [
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us1.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+  [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us2.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us3.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us4.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us5.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us6.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us7.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+    [
+        // Can also be a webp or jpg or any other image format
+        'src' => $block->getViewFileUrl('Hyva_Theme::find_us8.png'),
+        'alt' => 'Lorum Ipsum'
+    ],
+];
+
+$marqueeClasses = "flex gap-[var(--gap)] select-none overflow-hidden mask-overflow";
+$marqueeGroupClasses = "shrink-0 flex gap-[var(--gap)] items-center justify-around min-w-full" .
+    " animate-[marqueeScroll_var(--duration)_linear_infinite] motion-reduce:[animation-play-state:paused]";
+?>
+<div class="">
+    <section
+        class="relative py-7 md:py-12"
+        style="--size: clamp(10rem, 1rem + 40vmin, 30rem); --gap: calc(var(--size) / 14); --duration: 40s;"
+        aria-label="<?= $escaper->escapeHtml(__('Our favorite brands')) ?>"
+    >
+        <div class="section-heading">
+Find Us In
+        </div>
+    
+        <div class="<?= $escaper->escapeHtmlAttr($marqueeClasses) ?>">
+            <div class="<?= $escaper->escapeHtmlAttr($marqueeGroupClasses) ?>">
+                <?php foreach ($items as $item): ?>
+                    <img
+                        src="<?= $escaper->escapeHtmlAttr($item['src']) ?>"
+                        alt="<?= $escaper->escapeHtmlAttr($item['alt'] ?? '') ?>"                       
+                        loading="lazy"
+                         class="w-[100px] md:max-w-[140px] md:w-full h-[100px] md:h-[140px] object-contain"
+                    >
+                <?php endforeach; ?>
+            </div>
+    
+            <?php // Fake row for CSS only marquee effect ?>
+            <div aria-hidden="true" class="<?= $escaper->escapeHtmlAttr($marqueeGroupClasses) ?>">
+                <?php foreach ($items as $item): ?>
+                    <img
+                        src="<?= $escaper->escapeHtmlAttr($item['src']) ?>"
+                        alt=""                        
+                        loading="lazy"
+                         class="w-[100px] md:max-w-[140px] md:w-full h-[100px] md:h-[140px] object-contain"
+                    >
+                <?php endforeach; ?>
+            </div>
+        </div>
+    
+        <style>
+            @keyframes marqueeScroll {
+                from {
+                    translate: none;
+                }
+                to {
+                    translate: calc(-100% - var(--gap));
+                }
+            }
+        </style>
+    </section>
+</div>
+

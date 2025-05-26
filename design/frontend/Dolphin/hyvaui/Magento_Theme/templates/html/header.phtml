@@ -1,0 +1,253 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Checkout\Block\Cart\Sidebar as SidebarCart;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+$showMiniCart = $storeConfig->getStoreConfig(SidebarCart::XML_PATH_CHECKOUT_SIDEBAR_DISPLAY);
+
+$showCompare = $block->getShowCompare() !== null ? (bool) $block->getShowCompare() : false;
+$showWishlist = $block->getShowWishlist() !== null ? (bool) $block->getShowWishlist() : true;
+?>
+<script>
+    function initHeader () {
+        return {
+            searchOpen: false,
+            cart: {},
+            init() {
+                this.checkHeaderSize();
+            },
+            checkHeaderSize() {
+                const pageHeader = document.querySelector('.page-header');
+                if (!pageHeader) return;
+                document.documentElement.style.setProperty("--page-header-height", `${pageHeader.offsetHeight}px`);
+            },
+            summaryCount() {
+                return this.cart.summary_count || 0;
+            },
+            isCartOpen: false,
+            getData() {
+                const data = this.$event.detail.data;
+                if (data.cart) { this.cart = data.cart }
+            },
+            ariaLabel() {
+                return '<?= $escaper->escapeJs($showMiniCart ? __('Toggle minicart') : __('View cart')) ?>, ' +
+                    (this.isCartEmpty() ? '<?= $escaper->escapeJs(__('Cart is empty')) ?>' : (
+                        Math.abs(this.summaryCount()) > 1 ?
+                            hyva.str('<?= $escaper->escapeJs(__('%1 items')) ?>', this.summaryCount()) :
+                            hyva.str('<?= $escaper->escapeJs(__('%1 item')) ?>', this.summaryCount())
+                    ))
+            },
+            isCartEmpty() {
+                return !this.summaryCount()
+            },
+            openCart() {
+                this.$dispatch('toggle-cart', {
+                    isOpen: true
+                })
+            },
+            toggleCart() {
+                const event = this.$event;
+                if (event.detail && event.detail.isOpen !== undefined) {
+                    this.isCartOpen = event.detail.isOpen
+                    if (!this.isCartOpen && this.$refs && this.$refs.cartButton) {
+                        this.$refs.cartButton.focus()
+                    }
+                } else {
+                    <?php
+                    /*
+                     * The toggle-cart event was previously dispatched without parameter to open the drawer (not toggle).
+                     * Keeping this in here for backwards compatibility.
+                     */
+                    ?>
+                    this.isCartOpen = true
+                }
+            },
+            toggleSearchForm() {
+                this.searchOpen = !this.searchOpen;
+                this.$dispatch('search-open');
+            },
+            searchClose() {
+                this.searchOpen = false;
+            },
+            searchEscape() {
+                this.searchOpen = false;
+                this.$refs.searchButton.focus();
+            }
+        }
+    }
+
+    function initCompareHeader() {
+        return {
+            compareProducts: null,
+            itemCount: 0,
+            hiddenIfEmpty() {
+                return {
+                    'hidden': this.itemCount < 1
+                }
+            },
+            linkAriaLabel() {
+                const countLabel = this.itemCount > 1
+                    ? hyva.str('<?= $escaper->escapeJs(__('%1 Items')) ?>', this.itemCount)
+                    : hyva.str('<?= $escaper->escapeJs(__('%1 Item')) ?>', this.itemCount);
+                return `<?= $escaper->escapeJs(__('Compare Products')) ?> (${countLabel})`;
+            },
+            receiveCompareData() {
+                const data = this.$event.detail.data;
+                if (data['compare-products'] && data['compare-products'].count) {
+                    this.compareProducts = data['compare-products'];
+                    this.itemCount = this.compareProducts.count;
+                }
+            },
+            itemCountLabel() {
+                return `(${this.itemCount})`;
+            }
+        }
+    }
+
+    function initWishlistHeader() {
+        return {
+            wishlistProducts: null,
+            itemCount: 0,
+            linkAriaLabel() {
+                const countLabel = this.itemCount > 1
+                    ? hyva.str('<?= $escaper->escapeJs(__('%1 Items')) ?>', this.itemCount)
+                    : hyva.str('<?= $escaper->escapeJs(__('%1 Item')) ?>', this.itemCount);
+                return `<?= $escaper->escapeJs(__('Wishlist Products')) ?> (${countLabel})`;
+            },
+            receiveWishlistData() {
+                const data = this.$event.detail.data;
+
+                this.itemCount = data.wishlist && data.wishlist.items
+                    ? data.wishlist.items.length
+                    : 0;
+            }
+        }
+    }
+
+    window.addEventListener('alpine:init', () => {
+        Alpine.data('initHeader', initHeader);
+        Alpine.data('initCompareHeader', initCompareHeader);
+        Alpine.data('initWishlistHeader', initWishlistHeader);
+    }, { once: true })
+</script>
+
+<div
+    id="header"
+    class="z-30 relative"
+    x-data="initHeader"
+    @private-content-loaded.window="getData"
+    @resize.window.debounce="checkHeaderSize"
+>
+    <div class="relative container flex gap-4 lg:gap-8 items-center w-full px-3 py-4 mx-auto mt-0">
+        <?= $block->getChildHtml('logo'); ?>
+
+        <div class="order-first lg:order-none flex-1">
+            <?= $block->getChildHtml('topmenu') ?>
+        </div>
+
+        <div class="ml-auto flex items-center gap-3 md:gap-6">
+            <?php if ($showCompare): ?>
+                <?= $block->getChildHtml('compare'); ?>
+            <?php endif; ?>
+
+            <button
+                id="menu-search-icon"
+                class="rounded-full p-1 bg-[#F5F5F9] flex justify-center items-center w-12 md:w-14 h-12 md:h-14"
+                @click.prevent="toggleSearchForm"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Toggle search form')) ?>"
+                aria-haspopup="true"
+                :aria-expanded="searchOpen"
+                x-ref="searchButton"
+            >
+                <?= $heroicons->searchHtml('', 24, 24, ["aria-hidden" => "true"]) ?>
+            </button>
+            <div
+                id="search-content"
+                class="z-30 absolute top-full inset-x-0 container max-w-full-sm mr-0 px-3"
+                x-cloak
+                x-show="searchOpen"
+                @click.outside="searchClose"
+                @keydown.escape="searchEscape"
+            >
+                <div class="bg-white p-1.5 rounded-md shadow-lg before:-z-10 before:absolute before:-top-2.5 before:right-28
+                    before:w-5 before:h-5 before:bg-inherit before:rotate-45 before:shadow-lg">
+                    <?= $block->getChildHtml('header-search'); ?>
+                </div>
+            </div>
+
+           <?= $block->getChildHtml('additional') ?>
+
+            <?php if ($showMiniCart): ?>
+                <button
+            <?php else: ?>
+                <a
+            <?php endif ?>
+                id="menu-cart-icon"
+                class="relative text-transparent rounded-full p-1 bg-[#F5F5F9] flex justify-center items-center w-12 md:w-14 h-12 md:h-14"
+                x-ref="cartButton"
+                :aria-disabled="isCartEmpty"
+                :aria-label="ariaLabel"
+                <?php if ($showMiniCart): ?>
+                    @click.prevent="openCart"
+                    @toggle-cart.window="toggleCart"
+                    :aria-expanded="isCartOpen"
+                    aria-haspopup="dialog"
+                <?php else: ?>
+                    href="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/index')) ?>"
+                    title="<?= $escaper->escapeHtmlAttr(__('View cart')) ?>"
+                <?php endif ?>
+            >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.8195 8H4.18046C3.56252 8 3.09248 8.55487 3.19407 9.1644L4.86073 19.1644C4.9411 19.6466 5.35829 20 5.84713 20H18.1529C18.6417 20 19.0589 19.6466 19.1393 19.1644L20.8059 9.1644C20.9075 8.55487 20.4375 8 19.8195 8Z" stroke="#333F1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 8C8 5.79086 9.79086 4 12 4C14.2091 4 16 5.79086 16 8" stroke="#333F1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
+                <span
+                    x-text="summaryCount"
+                    x-show="summaryCount"
+                    x-cloak
+                    class="w-5 h-5 flex justify-center items-center absolute -top-1.5 -right-1.5 px-2 py-0.5 rounded-full bg-theme-color text-white
+                        text-xs font-semibold leading-none text-center uppercase tabular-nums"
+                    aria-hidden="true"
+                ></span>
+            <?php if ($showMiniCart): ?>
+                </button>
+            <?php else: ?>
+                </a>
+            <?php endif ?>
+
+            <?= $block->getChildHtml('customer') ?>
+
+            <?php if ($showWishlist): ?>
+                <?= $block->getChildHtml('wishlist') ?>
+            <?php endif ?>
+        </div>
+    </div>
+
+    <?= $block->getChildHtml('cart-drawer'); ?>
+    <?= $block->getChildHtml('authentication-popup'); ?>
+</div>
+
