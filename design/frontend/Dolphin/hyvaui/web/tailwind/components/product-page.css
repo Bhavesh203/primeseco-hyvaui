@@ -49,3 +49,9 @@
         @apply hidden;      
     }    
 }
+
+.related-product-slider .product-info{
+    .product-action{
+        @apply !flex;
+    }
+}

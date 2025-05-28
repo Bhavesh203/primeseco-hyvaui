@@ -26,21 +26,21 @@ $mediaUrl = $block->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) 
 
 $items = [
     [
-        'image_file' => 'banner1.png',
+        'image_file' => 'banner1.webp',
         'image_alt' => __('New Arrivals'),
         'banner_title' => __('Stylish, Sustainable, and Ready for Every Occasion'),
         'banner_disc' => __('Elevate your event with 100% biodegradable palm leaf dinnerware – durable, compostable, and perfect for those who value the planet and quality'),
         'url' => $block->getUrl('home'),
     ],
     [
-        'image_file' => 'banner2.png',
+        'image_file' => 'banner2.webp',
         'image_alt' => __('Summer Collection'),
         'banner_title' => __('Stylish, Sustainable, and Ready for Every Occasion'),
         'banner_disc' => __('Elevate your event with 100% biodegradable palm leaf dinnerware – durable, compostable, and perfect for those who value the planet and quality'),
         'url' => $block->getUrl('home'),
     ],
     [
-        'image_file' => 'banner3.png',
+        'image_file' => 'banner3.webp',
         'banner_title' => __('Stylish, Sustainable, and Ready for Every Occasion'),
         'banner_disc' => __('Elevate your event with 100% biodegradable palm leaf dinnerware – durable, compostable, and perfect for those who value the planet and quality'),
         'url' => $block->getUrl('home'),
@@ -96,23 +96,25 @@ $items = [
                 $imageSrc = $mediaUrl . $item['image_file'];
             ?>
             
-            <figure class="home_banner relative h-[600px]">
+            <figure class="home_banner relative pt-[600px]">
                 <img
                     src="<?= $escaper->escapeUrl($block->getViewFileUrl('Magento_Theme::images/' . $item['image_file'])) ?>"
                     alt="<?= $escaper->escapeHtmlAttr($item['image_alt'] ?? $item['banner_title'] ?? '') ?>"                                        
-                    class="object-cover h-full w-full"
+                    class="absolute inset-0 object-contain h-full w-full"
+                    width="1920"
+                    height="600"
                     loading="<?= $escaper->escapeHtmlAttr(($loadFirstEager && $index === 0 ? 'eager' : 'lazy')) ?>"
                 >
                 <?php if ($itemTextSmall || $itemTextLarge): ?>
                     <div class="container absolute left-2/4 top-2/4 -translate-x-2/4 -translate-y-2/4">            
                         <figcaption class="p-5 text-center md:text-left max-w-full lg:max-w-[816px] w-full">
                             <?php if ($itemTextSmall): ?>
-                                <p class="text-theme-dark text-[32px] leading-1 md:text-[40px] lg:text-[52px] sm:mb-3 last:mb-0 font-semibold drop-shadow-md">
+                                <p class="text-theme-dark text-[32px] leading-1 md:text-[40px] lg:text-[52px] sm:mb-3 last:mb-0 font-semibold">
                                     <?= $escaper->escapeHtml($itemTextSmall) ?>
                                 </p>
                             <?php endif; ?>
                             <?php if ($itemTextLarge): ?>
-                                <p class="text-xl lg:text-[25px] text-center md:text-left font-semibold drop-shadow-md mb-4 md:mb-8">
+                                <p class="text-xl lg:text-[25px] text-center md:text-left font-semibold mb-4 md:mb-8">
                                     <?= $escaper->escapeHtml($itemTextLarge) ?>
                                 </p>
                             <?php endif; ?>

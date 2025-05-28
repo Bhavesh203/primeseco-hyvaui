@@ -42,7 +42,7 @@ $block->setData('cache_tags', $viewModelNavigation->getIdentities());
     x-ref="nav-desktop"
     @load.window="setActiveMenu"
 >
-    <ul class="flex flex-wrap gap-x-8 justify-center capitalize">
+    <ul class="flex flex-wrap gap-x-8 justify-center capitalize items-center">
         <?php foreach ($menu as $item): ?>
             <?php if (!empty($item['childData'])): ?>
                 <li
@@ -124,6 +124,8 @@ $block->setData('cache_tags', $viewModelNavigation->getIdentities());
                 </li>
             <?php endif; ?>
         <?php endforeach; ?>
+        <li class="level0 nav-item custom-link"><a href="<?php echo $block->getUrl('about-us') ?>">About</a></li>
+        <li class="level0 nav-item custom-link"><a href="<?php echo $block->getUrl('contact-us') ?>">Contact Us</a></li>
     </ul>
 </nav>
 <script>

@@ -40,7 +40,7 @@ $logoSrc = $logoPathResolver && method_exists($logoPathResolver, 'getLogoSrc')
 ?>
 
 <a
-    class="inline-block align-middle"
+    class="relative pt-[72px] max-w-[147px] w-full inline-block align-middle"
     href="<?= $escaper->escapeUrl($block->getUrl()) ?>"
     title="<?= $escaper->escapeHtmlAttr(__('Go to Home page')) ?>"
 >
@@ -52,6 +52,7 @@ $logoSrc = $logoPathResolver && method_exists($logoPathResolver, 'getLogoSrc')
             height="72"
             loading="eager"
             fetchpriority="high"
+            class="absolute inset-0 w-full h-full object-cover"
         >
     <?php else: ?>
         <span class="text-xl font-medium font-title">

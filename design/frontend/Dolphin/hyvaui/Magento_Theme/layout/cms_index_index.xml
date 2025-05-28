@@ -14,14 +14,14 @@
     <body>
         <referenceBlock name="slider-1" remove="true"/>   
         <referenceBlock name="slider-2" remove="true"/>   
-        <referenceContainer name="content">
+        <!-- <referenceContainer name="content">
             <block name="slider-a" template="Magento_Theme::elements/slider-a.phtml">
                 <arguments>
-                    <argument name="show_arrows" xsi:type="string">end</argument> <!-- Show Slider nav arrows (true/false/start/end) -->
-                    <argument name="show_dots" xsi:type="boolean">true</argument> <!-- Show dots (true/false) -->
-                    <argument name="load_first_eager" xsi:type="boolean">false</argument> <!-- Load the first slider image eager (true/false) -->
+                    <argument name="show_arrows" xsi:type="string">end</argument> 
+                    <argument name="show_dots" xsi:type="boolean">true</argument> 
+                    <argument name="load_first_eager" xsi:type="boolean">false</argument>
                 </arguments>
             </block>            
-        </referenceContainer>
+        </referenceContainer> -->
     </body>
 </page>

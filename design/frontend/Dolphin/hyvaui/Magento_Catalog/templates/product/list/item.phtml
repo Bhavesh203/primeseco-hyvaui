@@ -83,7 +83,7 @@ $viewModels->require(BlockJsDependencies::class)->setBlockTemplateDependency($bl
 <?php if ($product->isSaleable()): ?>
 <form method="post"
     action="<?= $escaper->escapeUrl($productViewModel->getAddToCartUrl($product, ['useUencPlaceholder' => true])) ?>"
-    class="item product product-item product_addtocart_form m-0 card card-interactive flex flex-col w-full group <?= $viewIsGrid ? '' : 'md:flex-row' ?>"
+    class="item product relative product-item product_addtocart_form m-0 card card-interactive flex flex-col w-full group <?= $viewIsGrid ? '' : 'md:flex-row' ?>"
     <?php if ($product->getOptions()): ?>
     enctype="multipart/form-data"
     <?php endif; ?>
@@ -110,6 +110,20 @@ $viewModels->require(BlockJsDependencies::class)->setBlockTemplateDependency($bl
             ->setProductId($productId)
             ->toHtml(); ?>
     </a>
+    <?php
+    // Get the attribute value
+        $saleProduct = $product->getData('sale_product'); // Returns 1 for Yes, 0 for No
+
+        if ($saleProduct) : ?>
+            <div class="sale-product-label absolute top-2.5 left-2.5 p-4 rounded-full bg-theme-dark text-white font-bold text-base w-12 h-12 flex justify-center items-center ">
+                <?php echo __('SALE'); ?>
+            </div>
+    <?php endif; ?>
+
+    <?php
+    // echo $product->getAttributeText('sale_product');
+    ?>
+
     <div class="product-info flex flex-col grow justify-between">
         <?php $productNameStripped = $block->stripTags($product->getName(), null, true); ?>
         <div class="mt-2 mb-1 items-center justify-center text-primary font-semibold text-lg text-center <?= $viewIsGrid ? '' : 'md:text-left' ?>">

@@ -19,6 +19,7 @@
                 <argument name="overflow_style" xsi:type="string">normal</argument> <!-- Overflow style (normal/sticky) -->
             </arguments>
         </referenceBlock>
+       
         <referenceBlock name="script-alpine-js">
             <block name="alpine-plugin-snap-slider" template="Magento_Theme::page/js/plugins/snap-slider.phtml" />                            
         </referenceBlock>

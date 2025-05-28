@@ -57,7 +57,8 @@ module.exports = hyvaModules.mergeTailwindConfig({
               'light-gray':'#727272',
               'dove-gray': '#666666',
               'caper':'#D5EBAA',
-              'gallery':'#EAEAEA'
+              'gallery':'#EAEAEA',
+              'willow-brook':'#D7E6D3'
             },
       textColor: {
         orange: colors.orange,
@@ -156,7 +157,9 @@ module.exports = hyvaModules.mergeTailwindConfig({
     'lg:gap-4',
     'container',
     'mx-auto',
-    'lg:grid-cols-3'
+    'lg:grid-cols-3',
+    'text-[36px]',
+    'leading-1'
     // Add any others you use in CMS
   ],
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],

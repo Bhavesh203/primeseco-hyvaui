@@ -1,7 +1,8 @@
 body {
     @apply bg-container;
 }
-.columns{
+
+.columns {
     @apply px-3;
 }
 
@@ -16,13 +17,13 @@ body {
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 .input {
@@ -60,6 +61,28 @@ input[type=number] {
 }
 
 
-.bg-primes{
+.bg-primes {
     background-color: #85A33F;
+}
+
+.digit-container {
+    display: inline-block;
+    overflow: hidden;
+    height: 56px;
+    width: 2rem;
+    position: relative;
+}
+
+.digit-scroll {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.3s ease-out;
+}
+
+.digit {
+    font-size: 45px;
+    line-height: 56px;
+    font-weight: bold;    
+    @apply text-theme-dark text-center;
 }
