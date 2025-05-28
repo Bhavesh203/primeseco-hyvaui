@@ -4591,6 +4591,10 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
   margin-top: auto;
 }
 
+.mt-\[30px\] {
+  margin-top: 30px;
+}
+
 .box-content {
   box-sizing: content-box;
 }
@@ -4784,6 +4788,10 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
 
 .min-h-screen {
   min-height: 100vh;
+}
+
+.min-h-\[160px\] {
+  min-height: 160px;
 }
 
 .w-0 {
@@ -5030,6 +5038,10 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
 
 .flex-none {
   flex: none;
+}
+
+.flex-\[0_0_58\.79\%\] {
+  flex: 0 0 58.79%;
 }
 
 .flex-shrink-0 {
@@ -5584,6 +5596,10 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
   white-space: nowrap;
 }
 
+.text-balance {
+  text-wrap: balance;
+}
+
 .break-words {
   word-wrap: break-word;
 }
@@ -5622,6 +5638,10 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
 
 .rounded-xl {
   border-radius: 0.75rem;
+}
+
+.rounded-\[20px\] {
+  border-radius: 20px;
 }
 
 .rounded-b-md {
@@ -6067,6 +6087,12 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
   --tw-bg-opacity: 1;
   background-color: rgba(250, 250, 250, 1);
   background-color: rgba(250, 250, 250, var(--tw-bg-opacity, 1));
+}
+
+.bg-willow-brook {
+  --tw-bg-opacity: 1;
+  background-color: rgba(215, 230, 211, 1);
+  background-color: rgba(215, 230, 211, var(--tw-bg-opacity, 1));
 }
 
 .bg-opacity-100 {
@@ -6578,6 +6604,14 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
   line-height: 1rem;
 }
 
+.text-\[22px\] {
+  font-size: 22px;
+}
+
+.text-\[40px\] {
+  font-size: 40px;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -6656,6 +6690,10 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
 
 .leading-tight {
   line-height: 1.25;
+}
+
+.leading-10 {
+  line-height: 2.5rem;
 }
 
 .tracking-wide {
@@ -6916,6 +6954,12 @@ a.pagebuilder-button-secondary:focus, button.pagebuilder-button-secondary:focus,
   --tw-text-opacity: 1;
   color: rgba(251, 191, 36, 1);
   color: rgba(251, 191, 36, var(--tw-text-opacity, 1));
+}
+
+.text-\[\#333d1c\] {
+  --tw-text-opacity: 1;
+  color: rgba(51, 61, 28, 1);
+  color: rgba(51, 61, 28, var(--tw-text-opacity, 1));
 }
 
 .underline {
@@ -8804,6 +8848,10 @@ fieldset ~ fieldset {
     height: 100vh;
   }
 
+  .sm\:h-\[800px\] {
+    height: 800px;
+  }
+
   .sm\:w-1\/2 {
     width: 50%;
   }
@@ -8995,6 +9043,10 @@ fieldset ~ fieldset {
     right: 3rem;
   }
 
+  .md\:top-2\/4 {
+    top: 50%;
+  }
+
   .md\:order-3 {
     order: 3;
   }
@@ -9140,6 +9192,10 @@ fieldset ~ fieldset {
     height: auto;
   }
 
+  .md\:h-\[576px\] {
+    height: 576px;
+  }
+
   .md\:w-1\/2 {
     width: 50%;
   }
@@ -9204,6 +9260,12 @@ fieldset ~ fieldset {
   .md\:-translate-x-1\/3 {
     --tw-translate-x: -33.333333%;
     transform: translate(-33.333333%, var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+
+  .md\:-translate-y-1\/2 {
+    --tw-translate-y: -50%;
+    transform: translate(var(--tw-translate-x), -50%) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
   }
 
@@ -9337,6 +9399,11 @@ fieldset ~ fieldset {
   .md\:py-6 {
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
+  }
+
+  .md\:py-10 {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
   }
 
   .md\:pl-16 {
@@ -9502,6 +9569,18 @@ fieldset ~ fieldset {
 
   .lg\:mt-8 {
     margin-top: 2rem;
+  }
+
+  .lg\:mb-6 {
+    margin-bottom: 1.5rem;
+  }
+
+  .lg\:mt-20 {
+    margin-top: 5rem;
+  }
+
+  .lg\:mt-12 {
+    margin-top: 3rem;
   }
 
   .lg\:block {
@@ -9903,6 +9982,10 @@ fieldset ~ fieldset {
     line-height: 1.75rem;
   }
 
+  .lg\:text-\[22px\] {
+    font-size: 22px;
+  }
+
   .lg\:leading-10 {
     line-height: 2.5rem;
   }
@@ -9913,6 +9996,14 @@ fieldset ~ fieldset {
 
   .lg\:leading-\[55px\] {
     line-height: 55px;
+  }
+
+  .lg\:leading-\[50px\] {
+    line-height: 50px;
+  }
+
+  .lg\:leading-\[65px\] {
+    line-height: 65px;
   }
 
   .lg\:\!text-current {

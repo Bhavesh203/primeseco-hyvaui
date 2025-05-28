@@ -1,0 +1,180 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Contact\Block\ContactForm;
+use Magento\Contact\Helper\Data as ContactHelper;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\ReCaptcha;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+/** @var ContactForm $block */
+/** @var Escaper $escaper */
+/** @var ReCaptcha $recaptcha|null */
+
+$formId = 'contact';
+/** @var ContactHelper $contactHelper */
+$contactHelper = $this->helper(ContactHelper::class);
+
+// Do not replace this with $viewModels->require(ReCaptcha::class); that would break the dependency
+// on the Magento_ReCaptchaContact module
+$recaptcha = $block->getData('viewModelRecaptcha');
+?>
+<div>
+    <div class="relative"> 
+      <picture>
+                <?php
+        $mediaUrl = $block->getMediaUrl();
+        ?>
+
+    <picture>            
+        <source media="(min-width: 768px)" srcset="<?php echo $block->getUrl("pub/media/wysiwyg/")?>banner/image_d53f66ec-f647-4254-8552-8f0d1464bc0c.png"/>
+        <img 
+            src="<?php echo $block->getUrl("pub/media/wysiwyg/")?>banner//Frame_1171276610_1_.png"             
+            alt="" 
+            width="320" 
+            height="160"
+            loading="lazy"
+            class="col-start-1 row-start-1 w-full h-[600px] sm:h-[800px] md:h-[576px] object-cover group-hover:opacity-70 transition-opacity duration-500"
+        >
+    </picture>
+
+      <div
+        class="absolute top-0 left-1/2 -translate-x-2/4 md:top-2/4 md:-translate-y-1/2 container z-10 p-6 text-theme-dark text-2xl font-medium">
+        <div class="container">
+          <h1 class="mb-2 text-[40px] lg:text-[52px] leading-12 lg:leading-[65px] font-bold text-balance">Contact Us</h1>
+          <p class="font-bold">
+            Reach out and let your eco-friendly journey begin with us!
+          </p>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="container mt-[30px] lg:mt-12">
+        <div class="flex gap-6 flex-col lg:flex-row">
+            <form class="flex-[0_0_58.79%] space-y-4"
+                  action="<?= $escaper->escapeUrl($block->getFormAction()) ?>"
+                  id="<?= $escaper->escapeHtmlAttr($formId) ?>"
+                  method="post"
+                  x-data="initContactForm()"
+                  @submit.prevent="submitForm()"
+            >            
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="field name required flex flex-col">
+                            <label class="block text-[22px] leading-7 mb-2 font-semibold mb-1" for="name">
+                                <span><?= $escaper->escapeHtml(__('Your name')) ?></span>
+                            </label>
+                            <input name="name" id="name" required title="<?= $escaper->escapeHtmlAttr(__('Name')) ?>"
+                                   value="<?= $escaper->escapeHtmlAttr(
+                                       $contactHelper->getPostValue('name')
+                                           ?: $contactHelper->getUserName()
+                                   ) ?>"
+                                   class="w-full border rounded-md px-3 py-4.5"
+                                   type="text"
+                                   placeholder="<?= $escaper->escapeHtml(__('Name')) ?>"
+                            />
+                        </div>
+                        <div class="field email required flex flex-col">
+                            <label class="block text-[22px] leading-7 mb-2 font-semibold mb-1" for="email">
+                                <span><?= $escaper->escapeHtml(__('Your Email')) ?></span>
+                            </label>
+                            <input name="email" id="email" required title="<?= $escaper->escapeHtmlAttr(__('Email')) ?>"
+                                   value="<?= $escaper->escapeHtmlAttr(
+                                       $contactHelper->getPostValue('email')
+                                           ?: $contactHelper->getUserEmail()
+                                   ) ?>"
+                                   class="w-full border rounded-md px-3 py-4.5"
+                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Email')) ?>"
+                                   type="email"/>
+                        </div>
+                    </div>
+                    <div class="field telephone flex flex-col">
+                        <label class="block text-[22px] leading-7 mb-2 font-semibold mb-1" for="telephone">
+                            <span><?= $escaper->escapeHtml(__('Phone Number')) ?></span>
+                        </label>
+                        <input name="telephone" id="telephone"
+                                title="<?= $escaper->escapeHtmlAttr(__('Phone Number')) ?>"
+                                value="<?= $escaper->escapeHtmlAttr(
+                                    $contactHelper->getPostValue('telephone')
+                                ) ?>"
+                                class="w-full border rounded-md px-3 py-4.5"
+                                placeholder="<?= $escaper->escapeHtmlAttr(__('Phone Number')) ?>"
+                                type="text"/>
+                    </div>
+                    <div class="field comment required w-full text-left">
+                        <label class="block text-[22px] leading-7 mb-2 font-semibold mb-1" for="comment">
+                            <span><?= $escaper->escapeHtml(__('What’s on your mind?')) ?></span>
+                        </label>
+                        <textarea name="comment" id="comment" required
+                                    title="<?= $escaper->escapeHtmlAttr(__('What’s on your mind?')) ?>"
+                                    class="w-full border rounded-md px-3 py-4.5 min-h-[160px]" cols="5" rows="3"><?= $escaper->escapeHtml(
+                                        $contactHelper->getPostValue('comment')
+                                    ) ?></textarea>
+                    </div>
+                        <?= $block->getChildHtml('form.additional.info') ?>
+                        <?= $recaptcha ? $recaptcha->getInputHtml(ReCaptcha::RECAPTCHA_FORM_ID_CONTACT) : '' ?>     
+                <div class="w-full">
+                    <?= $block->getBlockHtml('formkey') ?>
+                    <button type="submit" title="<?= $escaper->escapeHtmlAttr(__('SEND')) ?>" class="btn btn-primary">
+                        <span><?= $escaper->escapeHtml(__('SEND')) ?></span>
+                    </button>
+                </div>
+                <div class="w-full">
+                    <?= $block->getChildHtml('form.additional.after') ?>
+                    <?= $recaptcha ? $recaptcha->getLegalNoticeHtml(ReCaptcha::RECAPTCHA_FORM_ID_CONTACT) : '' ?>
+                </div>
+            </form>
+    
+            <!-- Info Box -->
+            <div class="bg-willow-brook py-6 md:py-10 px-4 md:px-8 rounded-[20px]">
+                <h2 class="text-[30px] lg:text-[40px] leading-10 lg:leading-[50px] font-semibold text-theme-dark mb-5 lg:mb-6">Looking for disposable party plates?</h2>
+                <p class="text-xl lg:text-[22px] leading-6 lg:leading-7 mb-4">
+                    Look no further, we’ve got you covered! With our 100% biodegradable and sustainable disposable party plates, hosting events and parties is not just convenient but also environmentally friendly.
+                </p>
+                <p class="text-xl lg:text-[22px] leading-6 lg:leading-7">
+                    For any questions about party orders please<br>
+                    Email: <a href="mailto:sayhello@qudrat.co.in" class="text-[#333d1c] font-medium">sayhello@qudrat.co.in</a>, fill out the form or<br>
+                    Call: <span class="font-semibold text-[#333d1c]">+91 9567519666</span>
+                </p>
+            </div>
+            <script>
+                function initContactForm() {
+                    return {
+                        errors: 0,
+                        hasCaptchaToken: 0,
+                        submitForm() {
+                            // Do not rename $form, the variable is expected to be declared in the recaptcha output
+                            const $form = document.querySelector('#<?= $escaper->escapeJs($formId) ?>');
+                            <?= $recaptcha ? $recaptcha->getValidationJsHtml(ReCaptcha::RECAPTCHA_FORM_ID_CONTACT) : '' ?>
+        
+                            if (this.errors === 0) {
+                                $form.submit();
+                            }
+                        }
+                    }
+                }
+            </script>   
+        </div>
+         <!-- Google Map -->
+      <div class="mt-10 lg:mt-20">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2886.438235367625!2d-79.38561302428602!3d43.643462352627984!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b34d7356dc355%3A0xe66c68312357b179!2sRogers%20Centre!5e0!3m2!1sen!2sca!4v1716820800000!5m2!1sen!2sca" 
+          width="100%" 
+          height="436" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+</div>
