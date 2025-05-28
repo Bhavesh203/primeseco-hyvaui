@@ -26,7 +26,7 @@ $divider = $block->getDivider() !== null ? $block->getDivider() : true;
 $sectionIsOpen = '';
 ?>
 
-<div x-data="initProductSections" class="py-3 px-6 bg-gray-100">
+<div x-data="initProductSections" class="py-3 px-6 my-10 bg-theme-bg-light">
     <nav
         class="hidden lg:flex pb-6 snap overflow-x-auto overscroll-x-contain"
         aria-label="<?= $escaper->escapeHtml(__('Navigate to Product Section')) ?>"
@@ -36,7 +36,7 @@ $sectionIsOpen = '';
             <button
                 type="button"
                 class="relative flex-auto pt-1 pb-3 px-3 border-b whitespace-nowrap font-bold
-                    aria-expanded:text-blue-700 aria-expanded:border-current aria-expanded:after:border-inherit
+                    aria-expanded:text-theme-dark aria-expanded:border-current aria-expanded:after:border-inherit
                     after:absolute after:inset-x-0 after:bottom-0 after:border-b-2 after:border-transparent"
                 :aria-expanded="sectionTabIsOpen"
                 :aria-controls="tab.id"
@@ -78,7 +78,7 @@ $sectionIsOpen = '';
             >
                 <summary
                     @click.prevent="openSectionItem"
-                    class="flex [&::-webkit-details-marker]:hidden lg:hidden w-full items-center justify-between py-3 text-lg font-bold group-open:text-blue-700"
+                    class="flex [&::-webkit-details-marker]:hidden lg:hidden w-full items-center justify-between py-3 text-lg font-bold group-open:theme-dark"
 
                 >
                     <span><?= $escaper->escapeHtml($sectionTitle) ?></span>
@@ -112,13 +112,27 @@ $sectionIsOpen = '';
                 openSectionItem(id) {
                     this.currentOpen = id || this.id || '<?= /** @noEscape */ $sectionIsOpen ?>';
 
+                    // this.$nextTick(() => {
+                    //     document.getElementById(this.currentOpen).scrollIntoView({
+                    //         behavior: "smooth",
+                    //         block: "nearest",
+                    //         inline: "nearest"
+                    //     });
+                    // });
+
                     this.$nextTick(() => {
-                        document.getElementById(this.currentOpen).scrollIntoView({
-                            behavior: "smooth",
-                            block: "nearest",
-                            inline: "nearest"
-                        });
+                        setTimeout(() => {
+                            const el = document.getElementById(this.currentOpen);
+                            if (el) {
+                                el.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "nearest",
+                                    inline: "nearest"
+                                });
+                            }
+                        }, 50); // 50ms delay ensures rendering finishes
                     });
+
                 },
                 sectionTabIsOpen() {
                     return this.currentOpen === this.tab.id;

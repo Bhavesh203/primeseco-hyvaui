@@ -107,10 +107,10 @@ $product = $block->getProduct();
             <?= /** @noEscape */ $tierPriceBlock ?>
         </div>
     <?php endif; ?>
-<div class="my-4 lg:my-8 flex flex-col gap-5">
+<div class="my-4 lg:my-8 flex flex-col">
     <?php if ($shortDescription = $productViewModel->getShortDescription()) { ?>
-       <div x-data="{ open: false }" class="mb-4">
-           <h4 @click="open = !open" class="des-title cursor-pointer flex justify-between items-center text-black font-medium text-[25px] leading-[31px]">
+       <div x-data="{ open: false }" class="">
+           <h4 @click="open = !open" class="des-title cursor-pointer flex justify-between items-center text-black font-medium text-xl md:text-[25px] leading-6 md:leading-[31px] py-3 md:py-5">
                Product Description
                <svg :class="{'transform rotate-180': open}" class="w-4 h-4 ml-2 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none"
                    viewBox="0 0 24 24" stroke="currentColor">
@@ -124,8 +124,8 @@ $product = $block->getProduct();
        </div>
     <?php } ?>
     
-    <dl x-data="{ open: false }" id="product-details" class="border border-x-0 border-[#C5C5C5] py-2 lg:py-4">
-       <h4 @click="open = !open" class="cursor-pointer flex justify-between items-center text-black font-medium text-[25px] leading-[31px]">
+    <dl x-data="{ open: false }" id="product-details" class="border border-x-0 border-[#C5C5C5]">
+       <h4 @click="open = !open" class="cursor-pointer flex justify-between items-center text-black font-medium text-xl md:text-[25px] leading-6 md:leading-[31px] py-3 md:py-5">
            Product Details
            <svg :class="{'transform rotate-180': open}" class="w-4 h-4 ml-2 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none"
                    viewBox="0 0 24 24" stroke="currentColor">

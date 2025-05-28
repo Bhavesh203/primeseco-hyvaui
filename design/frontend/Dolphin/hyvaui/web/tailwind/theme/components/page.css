@@ -39,3 +39,22 @@ body {
 .section-heading{
   @apply text-2xl lg:text-[40px] leading-8 lg:leading-[50px] font-bold text-theme-dark text-center capitalize mb-4 md:mb-8;
 }
+
+.cms-home{
+  .container:has(.page-title){
+    @apply hidden;
+  }
+  .product-info{    
+    .product-item-link{
+      @apply !text-left;
+    }    
+  }
+}
+.cms-about-us, .cms-contact-us{
+  .column.main{
+    @apply order-[0];
+  }
+  .container:has(.page-title){
+    @apply hidden;
+  }
+}

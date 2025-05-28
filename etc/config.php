@@ -380,10 +380,14 @@ return [
         'Hyva_PaymentIcons' => 1,
         'Hyva_ReactCheckout' => 1,
         'Hyva_Theme' => 1,
+        'MagestyApps_WebImages' => 1,
         'PayPal_Braintree' => 1,
         'PayPal_BraintreeCustomerBalance' => 1,
         'PayPal_BraintreeGiftCardAccount' => 1,
         'PayPal_BraintreeGiftWrapping' => 1,
-        'PayPal_BraintreeGraphQl' => 1
+        'PayPal_BraintreeGraphQl' => 1,
+        'Yireo_CspUtilities' => 0,
+        'Yireo_NextGenImages' => 1,
+        'Yireo_Webp2' => 1
     ]
 ];

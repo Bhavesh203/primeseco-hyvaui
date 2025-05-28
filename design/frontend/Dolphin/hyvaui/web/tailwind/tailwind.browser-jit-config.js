@@ -57,8 +57,8 @@ module.exports ={
               'white-fox': '#FAFAFA',
               'light-gray':'#727272',
               'dove-gray': '#666666',
-              'caper':'#D5EBAA'
-
+              'caper':'#D5EBAA',
+              'willow-brook':'#D7E6D3'
             },
       textColor: {
         orange: colors.orange,
@@ -133,4 +133,23 @@ module.exports ={
     },
     
   },  
+   safelist: [
+    'flex',
+    'items-center',
+    'gap-6',
+    'bg-white-fox',    // custom class (make sure it's defined in your theme)
+    'rounded-xl',
+    'p-6',
+    'lg:p-10',
+    'flex-col',
+    'sm:flex-row',
+    'lg:flex-col',
+    'lg:gap-4',
+    'container',
+    'mx-auto',
+    'lg:grid-cols-3',
+    'text-[36px]',
+    'leading-1'
+    // Add any others you use in CMS
+  ],
 };

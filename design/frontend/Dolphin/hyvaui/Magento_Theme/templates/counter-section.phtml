@@ -1,0 +1,73 @@
+<section class="flex items-center justify-center py-6 lg:py-12 px-5 bg-gray-100 flex-col gap-8">
+    <h1 class="mt-0 mb-2 w-fit text-3xl lg:text-[40px] leading-1 text-center"><strong>Our Journey by the Numbers</strong>
+        <span class="block -mt-1 bg-caper w-full h-1.5"></span>
+    </h1>
+  <div class="flex gap-8 justify-center items-center flex-wrap">
+    <div x-data="digitCounter(0, 1934192, 1500)" x-init="start()" class="flex flex-col items-center bg-white p-8 rounded-lg w-full md:w-fit">
+      <div class="flex space-x-1">
+        <template x-for="(digit, index) in digits" :key="index">
+          <div class="digit-container">
+            <div class="digit-scroll" :style="`transform: translateY(-${digit * 3.5}rem)`">
+              <template x-for="n in 10" :key="n">
+                <div class="digit" x-text="n - 1"></div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+      <h4 class="text-lg font-medium mt-2.5 lg:text-[24px] leading-6 lg:leading-7">Happy customers</h4>
+    </div>
+
+    <div x-data="digitCounter(0, 2541032, 1500)" x-init="start()" class="flex flex-col items-center bg-white p-8 rounded-lg w-full md:w-fit">
+      <div class="flex space-x-1">
+        <template x-for="(digit, index) in digits" :key="index">
+          <div class="digit-container">
+            <div class="digit-scroll" :style="`transform: translateY(-${digit * 3.5}rem)`">
+              <template x-for="n in 10" :key="n">
+                <div class="digit" x-text="n - 1"></div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+      <h4 class="text-lg font-medium mt-2.5 lg:text-[24px] leading-6 lg:leading-7">Product Sold</h4>
+    </div>
+
+    <div x-data="digitCounter(0, 398165, 1500)" x-init="start()" class="flex flex-col items-center bg-white p-8 rounded-lg w-full md:w-fit">
+        <div class="flex space-x-1">
+            <template x-for="(digit, index) in digits" :key="index">
+            <div class="digit-container">
+                <div class="digit-scroll" :style="`transform: translateY(-${digit * 3.5}rem)`">
+                <template x-for="n in 10" :key="n">
+                    <div class="digit" x-text="n - 1"></div>
+                </template>
+                </div>
+            </div>
+            </template>
+      </div>
+      <h4 class="text-lg font-medium mt-2.5 lg:text-[24px] leading-6 lg:leading-7">Order Placed</h4>
+    </div>
+  </div>
+</section>
+
+
+<script>
+function digitCounter(start, end, duration) {
+  return {
+    digits: [],
+    start() {
+      const startTime = performance.now();
+      const length = String(end).length;
+      this.digits = String(start).padStart(length, '0').split('').map(Number);
+
+      const step = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        this.digits = String(Math.floor(start + (end - start) * progress)).padStart(length, '0').split('').map(Number);
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+  };
+}
+</script>
+

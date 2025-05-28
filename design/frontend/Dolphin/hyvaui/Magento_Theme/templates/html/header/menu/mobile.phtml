@@ -47,7 +47,7 @@ $showSettingsNav = $block->getShowSettingsNav() !== null ? $block->getShowSettin
 $showSearch = $block->getShowSearch() !== null ? $block->getShowSearch() : true;
 $showSocials = $block->getShowSocials() !== null ? $block->getShowSocials() : true;
 
-$itemClasses = "flex items-center gap-1 py-3 px-6 border-b border-slate-200 hover:text-slate-700 aria-[current=page]:text-blue-700 aria-[current=page]:font-bold -outline-offset-1";
+$itemClasses = "flex items-center gap-1 py-3 px-6 border-b border-slate-200 hover:text-slate-700 aria-[current=page]:text-theme-color aria-[current=page]:font-bold -outline-offset-1";
 $itemIconSize = 20;
 ?>
 
@@ -121,7 +121,9 @@ $itemIconSize = 20;
                                 <?php endif; ?>
                             ><?= $escaper->escapeHtml($item['name']) ?></a>
                         </li>
-                    <?php endforeach; ?>
+                    <?php endforeach; ?>                    
+                    <li class="level0 nav-item custom-link"><a class="<?= $escaper->escapeHtmlAttr($itemClasses) ?>" href="<?php echo $block->getUrl('about-us') ?>">About Us</a></li>                
+                    <li class="level0 nav-item custom-link"><a class="<?= $escaper->escapeHtmlAttr($itemClasses) ?>" href="<?php echo $block->getUrl('contact-us') ?>">Contact Us</a></li>                
                 </ul>
             </nav>
             <?php if ($showSettingsNav): ?>

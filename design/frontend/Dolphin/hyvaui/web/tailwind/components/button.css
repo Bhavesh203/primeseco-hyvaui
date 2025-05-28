@@ -54,3 +54,8 @@
         @apply px-2 py-2 text-sm;
     }
 }
+
+
+.custom-btn{
+    @apply bg-[#D5EBAA] font-bold text-black text-2xl px-5 py-2.5 rounded-sm;
+}
